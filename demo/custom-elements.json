@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "demo/src/my-component.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Test component",
+          "name": "MyComponent",
+          "members": [
+            {
+              "kind": "method",
+              "name": "render"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "status": {
+            "name": "beta",
+            "description": "A beta component"
+          },
+          "dependencies": [
+            {
+              "name": "Button",
+              "description": "A button component"
+            },
+            {
+              "name": "Icon",
+              "description": ""
+            }
+          ],
+          "tagName": "my-component",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyComponent",
+          "declaration": {
+            "name": "MyComponent",
+            "module": "demo/src/my-component.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-component",
+          "declaration": {
+            "name": "MyComponent",
+            "module": "demo/src/my-component.js"
+          }
+        }
+      ]
+    }
+  ]
+}

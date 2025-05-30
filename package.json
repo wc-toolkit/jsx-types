@@ -1,0 +1,82 @@
+{
+  "name": "@wc-toolkit/jsx-types",
+  "version": "1.0.0-beta.0",
+  "description": "This package generates types for JSX environments for custom elements / web components",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "/dist"
+  ],
+  "scripts": {
+    "analyze": "npm run build && cem analyze --globs demo/src/**/*.js --outdir demo",
+    "changeset": "changeset add",
+    "build": "tsup src/index.ts --dts --format cjs,esm",
+    "clean": "git clean -fdX",
+    "deploy": "npm run build && npm publish",
+    "demo": "npm run build && node ./demo/generate-types.js",
+    "format": "prettier . --write",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "test": "npm run analyze && vitest --run --passWithNoTests",
+    "prepare": "husky",
+    "release": "pnpm run build && changeset publish --access=public"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wc-toolkit/jsx-types.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wc-toolkit/jsx-types/issues"
+  },
+  "homepage": "https://wc-toolkit.com/documentation/jsx-types",
+  "devDependencies": {
+    "@changesets/cli": "^2.27.12",
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.15.21",
+    "@wc-toolkit/cem-utilities": "^1.2.0",
+    "comment-parser": "^1.4.1",
+    "custom-elements-manifest": "2.1.0",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "husky": "^9.1.7",
+    "prettier": "3.4.2",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.4"
+  },
+  "keywords": [
+    "custom-elements",
+    "custom-elements-manifest",
+    "web-components",
+    "components",
+    "cem",
+    "jsx",
+    "jsx-types",
+    "react",
+    "preact",
+    "stenciljs",
+    "@wc-toolkit/jsx-types"
+  ],
+  "lint-staged": {
+    "*.ts": "eslint --cache --fix",
+    "*.--write": "prettier --write"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}
