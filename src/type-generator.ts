@@ -32,7 +32,6 @@ export function generateJsxTypes(
   manifest: cem.Package,
   options: JsxTypesOptions = {},
 ) {
-  // Merge with defaults, ensuring type safety
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
 
@@ -58,7 +57,6 @@ export function generateJsxTypes(
 
   log.log("[jsx-types] - Generating types...");
 
-  // Generate types, create directory, and save file
   const template = getTypeTemplate(manifest, mergedOptions);
   createOutDir(mergedOptions.outdir!);
   saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
@@ -171,14 +169,12 @@ ${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
 
 ${components
   ?.map((component: Component) => {
-    // Performance improvement: Cache the props lookup to avoid repetitive calculations
     const cachedProps = getAttrsAndProps(component);
 
     return `
 
 export type ${component.name}Props = {
 ${(() => {
-  // Performance improvement: Avoid nested IIFE and simplify the property mapping
   if (cachedProps.length === 0) return "";
 
   return cachedProps
@@ -188,7 +184,6 @@ ${(() => {
         prop.deprecated,
       );
 
-      // Performance improvement: Use ternary operator for cleaner code
       return prop.attrName && prop.propName !== prop.attrName
         ? `  /** ${description} */
   "${prop.attrName}"?: ${component.name}['${prop.propName}'];

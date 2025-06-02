@@ -77,45 +77,6 @@ export default {
 };
 ```
 
-## Configuration
-
-The configuration has the following optional parameters:
-
-```ts
-type JsxTypesOptions = {
-  /** Used to get a specific path for a given component */
-  componentTypePath?: (name: string, tag?: string) => string;
-  /** Name of the file generated */
-  fileName?: string;
-  /** Path to output directory */
-  outdir?: string;
-  /** Component names to exclude form process */
-  exclude?: string[];
-  /** Used to get global type reference for components */
-  globalTypePath?: string;
-  /** Indicates if the component classes are a default export rather than a named export */
-  defaultExport?: boolean;
-  /** Include standard global events (ie - `onClick`, `onHover`, etc. */
-  includeDefaultDOMEvents?: boolean;
-  /** Used to add global element props to all component types */
-  globalEvents?: string;
-  /** Adds types to allow users to add undefined attributes or props to the custom elements */
-  allowUnknownProps?: boolean;
-  /** Adds a prefix to tag references */
-  prefix?: string;
-  /** Adds a suffix to tag references */
-  suffix?: string;
-  /** Available options for configuring the way the components description is rendered */
-  componentDescriptionOptions?: ComponentDescriptionOptions;
-  /** Uses your custom event type instead of `CustomEvent<T>` */
-  overrideCustomEventType?: boolean;
-  /** Skips the code from running */
-  skip?: boolean;
-  /** Shows contextual logs */
-  debug?: boolean;
-};
-```
-
 ## Implementation
 
 In order for teams to take advantage of this, all they need to do is import the types in their project and extend JSX's `IntrinsicElements`. They should immediately begin seeing the type support for your components in the editor.

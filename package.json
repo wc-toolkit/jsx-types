@@ -28,7 +28,7 @@
     "format": "prettier . --write",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
-    "test": "npm run analyze && vitest --run --passWithNoTests",
+    "test": "vitest --run --passWithNoTests",
     "prepare": "husky",
     "release": "pnpm run build && changeset publish --access=public"
   },
