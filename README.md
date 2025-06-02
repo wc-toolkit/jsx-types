@@ -6,7 +6,7 @@
 
 # WC Toolkit Custom Element JSX Types Generator
 
-This package is designed to generate types for your custom elements in a project using [JSX](https://www.typescriptlang.org/docs/handbook/jsx.html). These types will generate inline documentation, autocomplete, and type-safe validation for your custom elements in non-react frameworks that use JSX like [Preact](https://preactjs.com/) and [StencilJS](https://stenciljs.com/).
+This package is designed to generate [JSX](https://www.typescriptlang.org/docs/handbook/jsx.html) types for your custom elements. These types will generate inline documentation, autocomplete, and type-safe validation for your custom elements in frameworks that use JSX like [React (19+)](https://react.dev/), [Preact](https://preactjs.com/) and [StencilJS](https://stenciljs.com/).
 
 > **_NOTE:_** If you are using react 18 or below, check out our [react wrappers](https://www.npmjs.com/package/custom-element-react-wrappers).
 
@@ -29,13 +29,13 @@ This package includes two ways to generate the custom data config file:
 ### Install
 
 ```bash
-npm i -D custom-element-jsx-integration
+npm i -D @wc-toolkit/jsx-types
 ```
 
 ### Build Pipeline
 
 ```ts
-import { generateJsxTypes, JsxTypesOptions } from "custom-element-jsx-integration";
+import { generateJsxTypes, JsxTypesOptions } from "@wc-toolkit/jsx-types";
 import manifest from "./path/to/custom-elements.json";
 
 const options: JsxTypesOptions = {...};
@@ -57,13 +57,13 @@ Ensure the following steps have been taken in your component library prior to us
 ```js
 // custom-elements-manifest.config.js
 
-import { customElementJsxPlugin } from "custom-element-jsx-integration";
+import { jsxTypesPlugin } from "@wc-toolkit/jsx-types";
 
 const options = {...};
 
 export default {
   plugins: [
-    customElementJsxPlugin(options)
+    jsxTypesPlugin(options)
   ],
 };
 ```
@@ -73,48 +73,38 @@ export default {
 The configuration has the following optional parameters:
 
 ```ts
-{
+type JsxTypesOptions = {
+  /** Used to get a specific path for a given component */
+  componentTypePath?: (name: string, tag?: string) => string;
+  /** Name of the file generated */
+  fileName?: string;
   /** Path to output directory */
   outdir?: string;
-  /** File name for the types */
-  fileName?: string | null;
-  /** Class names of any components you would like to exclude from the custom data */
+  /** Component names to exclude form process */
   exclude?: string[];
-  /** The property name from the component object that you would like to use for the description of your component */
-  descriptionSrc?: "description" | "summary" | string;
+  /** Used to get global type reference for components */
+  globalTypePath?: string;
   /** Indicates if the component classes are a default export rather than a named export */
   defaultExport?: boolean;
-  /** Displays the slot section of the element description */
-  hideSlotDocs?: boolean;
-  /** Displays the event section of the element description */
-  hideEventDocs?: boolean;
-  /** Displays the CSS custom properties section of the element description */
-  hideCssPropertiesDocs?: boolean;
-  /** Displays the CSS parts section of the element description */
-  hideCssPartsDocs?: boolean;
-  /** Displays the methods section of the element description */
-  hideMethodDocs?: boolean;
-  /** Overrides the default section labels in the component description */
-  labels?: {
-    slots?: string;
-    events?: string;
-    cssProperties?: string;
-    cssParts?: string;
-    methods?: string;
-  };
-  /** Used to get type reference for components from a single source */
-  globalTypePath?: string;
-  /** Used to get types from specific path for a given component */
-  componentTypePath?: (name: string, tag?: string) => string;
-  /** The property form your CEM component object to display your types */
-  typesSrc?: string;
+  /** Include standard global events (ie - `onClick`, `onHover`, etc. */
+  includeDefaultDOMEvents?: boolean;
   /** Used to add global element props to all component types */
   globalEvents?: string;
-  /** Hides logs produced by the plugin */
-  hideLogs?: boolean;
-  /** Prevents plugin from executing */
+  /** Adds types to allow users to add undefined attributes or props to the custom elements */
+  allowUnknownProps?: boolean;
+  /** Adds a prefix to tag references */
+  prefix?: string;
+  /** Adds a suffix to tag references */
+  suffix?: string;
+  /** Available options for configuring the way the components description is rendered */
+  componentDescriptionOptions?: ComponentDescriptionOptions;
+  /** Uses your custom event type instead of `CustomEvent<T>` */
+  overrideCustomEventType?: boolean;
+  /** Skips the code from running */
   skip?: boolean;
-}
+  /** Shows contextual logs */
+  debug?: boolean;
+};
 ```
 
 ## Implementation
@@ -193,10 +183,6 @@ If no value is provided, the plugin will use the `summary` property and then fal
 
 If you component class does not provide a named export and is the default export, be sure to set `defaultExport` to `true`. This will endure the import for the class gets resolved correctly.
 
-### Contextual Information
-
-The contextual information provided when hovering over the custom element can be configured using the `hideSlotDocs`, `hideEventDocs`, `hideCssPropertiesDocs`, `hideCssPartsDocs`, as well as the `hideMethodDocs`. The headings for each of the sections can also be configured using the `labels` option.
-
 ### Types
 
 If your components were built using TypeScript, you should define a path to your type declarations to pass that type-safety on to the JSX project.
@@ -221,165 +207,96 @@ If each of the component type definitions are split out by each component, you c
 
 > _***NOTE:*** It's important to note that if a type path is not provided, the generator will fall back to the type defined in the Custom Elements Manifest._
 
-#### Custom Types
+### Custom Event Type Handling with `overrideCustomEventType`
 
-If you have custom types configured in your Custom Elements Manifest and do not have types or are unable to use them, you can specify the property name of that type using the `typeSrc` option.
+By default, the JSX Types Generator uses the standard `CustomEvent<T>` type for all custom events emitted by your components. However, some libraries may create custom event types.
 
-### Adding Events
+The `overrideCustomEventType` option allows you to use your own event type convention instead
 
-By default the types will be mapped with the attributes, properties, and custom events that have been documented for it. There are, however the native events that are available to them because they are HTML elements. If you would like to add the events to your types, you can assign them to the `globalEvents` option and they will be included in your component's type.
+When enabled:
+
+- The generator will not explicitly use `CustomEvent<T>` in the generated types
+- Instead, it will use the event type exactly as specified in your components
+- This works well with frameworks that have their own event wrapper types
+
+#### Use Cases
+
+This option is particularly useful when:
+
+1. Your framework has its own event type system (like some versions of Stencil)
+2. You've created a custom event type that extends or modifies the standard CustomEvent
+3. You're working with a TypeScript setup that has special handling for events
+
+#### Example
+
+Without this option, events might be typed like:
+
+```typescript
+"onmy-change"?: (e: CustomEvent<T>) => void;
+```
+
+With `overrideCustomEventType: true`, if your event type is defined as `MyCustomEvent<T>`, the generator will preserve that type:
+
+```typescript
+"onsl-change"?: (e: MyCustomEvent<T>) => void;
+```
+
+> **_NOTE:_** Only enable this option if you have specific event typing needs. For most cases, the default `CustomEvent<T>` is the appropriate choice.
+
+### Type Flexibility with `allowUnknownProps`
+
+By default, the generated types are strict, only allowing properties and events that are explicitly defined in the custom elements manifest. This ensures type safety but can sometimes be restrictive when you need to pass additional properties that aren't formally defined in the component.
+
+When enabled:
+
+- Components will accept any additional properties beyond those explicitly defined
+- This can be helpful in the following scenarios:
+  - When components have undocumented properties
+  - When you need to pass data attributes (`data-*`)
+  - When using third-party libraries that attach special properties
+  - During development when component APIs are still evolving
+
+Example usage:
+
+```jsx
+// With allowUnknownProps: true
+<my-component
+  standardProp="value"
+  data-analytics="click-tracking" // Works with allowUnknownProps: true
+  custom-attribute="something" // Works with allowUnknownProps: true
+/>
+```
+
+> **_NOTE:_** While this option makes development more flexible, it comes at the cost of type safety. Use it sparingly and consider adding proper types to your components instead whenever possible.
+
+## Scoped Elements
+
+There are two ways to work with scoped custom elements (elements with prefixes or suffixes):
+
+### 1. Configuration Options: `prefix` and `suffix`
+
+When generating your types, you can automatically add prefixes or suffixes to all tags:
 
 ```ts
+// In your configuration
 {
-  globalEvents: `
-  // Mouse Events
+  // Adds "my-" to the beginning of all component tags
+  prefix: "my-",
 
-  /** Triggered when the element is clicked by the user by mouse or keyboard. */
-  onClick?: (event: MouseEvent) => void;
-
-  // Keyboard Events
-
-  /** Fired when a key is pressed down. */
-  onKeyDown?: (event: KeyboardEvent) => void;
-  /** Fired when a key is released.. */
-  onKeyUp?: (event: KeyboardEvent) => void;
-  /** Fired when a key is pressed down. */
-  onKeyPressed?: (event: KeyboardEvent) => void;
-
-  // Focus Events
-
-  /** Fired when the element receives focus, often triggered by tab navigation. */
-  onFocus?: (event: FocusEvent) => void;
-  /** Fired when the element loses focus. */
-  onBlur?: (event: FocusEvent) => void;
-  `;
+  // Adds "-component" to the end of all component tags
+  suffix: "-component"
 }
 ```
 
-> _***NOTE:*** It is not required, but highly recommended that you include descriptions for these events as code editors will often provide that information._
+This will generate types where components like `<button>` become available as `<my-button-component>`.
 
-#### Native Events Template
+### 2. Using `ScopedElements` Utility Type
 
-Here is a list of some popular native events that are pre-configured for SolidJS. This list is not exhaustive and can be modified to meet your needs.
-
-```ts
-// Mouse Events
-
-/** Triggered when the element is clicked by the user by mouse or keyboard. */
-onClick?: (event: MouseEvent) => void;
-/** Fired when the context menu is triggered, often by right-clicking. */
-onContextMenu?: (event: MouseEvent) => void;
-/** Fired when the element is double-clicked. */
-onDoubleClick?: (event: MouseEvent) => void;
-/** Fired repeatedly as the draggable element is being dragged. */
-onDrag?: (event: DragEvent) => void;
-/** Fired when the dragging of a draggable element is finished. */
-onDragEnd?: (event: DragEvent) => void;
-/** Fired when a dragged element or text selection enters a valid drop target. */
-onDragEnter?: (event: DragEvent) => void;
-/** Fired when a dragged element or text selection leaves a valid drop target. */
-onDragExit?: (event: DragEvent) => void;
-/** Fired when a dragged element or text selection leaves a valid drop target. */
-onDragLeave?: (event: DragEvent) => void;
-/** Fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds). */
-onDragOver?: (event: DragEvent) => void;
-/** Fired when a draggable element starts being dragged. */
-onDragStart?: (event: DragEvent) => void;
-/** Fired when a dragged element is dropped onto a drop target. */
-onDrop?: (event: DragEvent) => void;
-/** Fired when a mouse button is pressed down on the element. */
-onMouseDown?: (event: MouseEvent) => void;
-/** Fired when the mouse cursor enters the element. */
-onMouseEnter?: (event: MouseEvent) => void;
-/** Triggered when the mouse cursor leaves the element. */
-onMouseLeave?: (event: MouseEvent) => void;
-/** Fired at an element when a pointing device (usually a mouse) is moved while the cursor's hotspot is inside it. */
-onMouseMove?: (event: MouseEvent) => void;
-/** Fired at an Element when a pointing device (usually a mouse) is used to move the cursor so that it is no longer contained within the element or one of its children. */
-onMouseOut?: (event: MouseEvent) => void;
-/** Fired at an Element when a pointing device (such as a mouse or trackpad) is used to move the cursor onto the element or one of its child elements. */
-onMouseOver?: (event: MouseEvent) => void;
-/** Fired when a mouse button is released on the element. */
-onMouseUp?: (event: MouseEvent) => void;
-
-// Keyboard Events
-
-/** Fired when a key is pressed down. */
-onKeyDown?: (event: KeyboardEvent) => void;
-/** Fired when a key is released.. */
-onKeyUp?: (event: KeyboardEvent) => void;
-/** Fired when a key is pressed down. */
-onKeyPressed?: (event: KeyboardEvent) => void;
-
-// Focus Events
-
-/** Fired when the element receives focus, often triggered by tab navigation. */
-onFocus?: (event: FocusEvent) => void;
-/** Fired when the element loses focus. */
-onBlur?: (event: FocusEvent) => void;
-
-// Form Events
-
-/** Fired when the value of an input element changes, such as with text inputs or select elements. */
-onChange?: (event: Event) => void;
-/** Fires when the value of an <input>, <select>, or <textarea> element has been changed. */
-onInput?: (event: Event) => void;
-/** Fired when a form is submitted, usually on pressing Enter in a text input. */
-onSubmit?: (event: Event) => void;
-/** Fired when a form is reset. */
-onReset?: (event: Event) => void;
-
-// UI Events
-
-/** Fired when the content of an element is scrolled. */
-onScroll?: (event: UIEvent) => void;
-
-// Wheel Events
-
-/** Fired when the mouse wheel is scrolled while the element is focused. */
-onWheel?: (event: WheelEvent) => void;
-
-// Animation Events
-
-/** Fired when a CSS animation starts. */
-onAnimationStart?: (event: AnimationEvent) => void;
-/** Fired when a CSS animation completes. */
-onAnimationEnd?: (event: AnimationEvent) => void;
-/** Fired when a CSS animation completes one iteration. */
-onAnimationIteration?: (event: AnimationEvent) => void;
-
-// Transition Events
-
-/** Fired when a CSS transition has completed. */
-onTransitionEnd?: (event: TransitionEvent) => void;
-
-// Media Events
-
-/** Fired when an element (usually an image) finishes loading */
-onLoad?: (event: Event) => void;
-/** Fired when an error occurs during the loading of an element, like an image not being found. */
-onError?: (event: Event) => void;
-
-// Clipboard Events
-
-/** Fires when the user initiates a copy action through the browser's user interface. */
-onCopy?: (event: ClipboardEvent) => void;
-/** Fired when the user has initiated a "cut" action through the browser's user interface. */
-onCut?: (event: ClipboardEvent) => void;
-/** Fired when the user has initiated a "paste" action through the browser's user interface. */
-onPaste?: (event: ClipboardEvent) => void;
-
-// ... Add more events as needed
-```
-
-## Scoping Types
-
-If you are scoping your component tags using a custom prefix or suffix, you can use the `ScopedElements` utility type to provide types for those elements without having to generate new custom types.
+If you've already generated types without prefixes/suffixes, you can use the `ScopedElements` utility type to create scoped versions:
 
 ```ts
 // scoped-types.d.ts
-
-import type { ScopedElements } from "path/to/jsx-types";
+import type { CustomElements, ScopedElements } from "path/to/jsx-types";
 
 declare module "my-app" {
   namespace JSX {
@@ -388,4 +305,73 @@ declare module "my-app" {
 }
 ```
 
-> _***NOTE:*** The scoped types will lose the contextual information when hovering over the tag in the editor._
+> **Note:** When using `ScopedElements`, you'll lose the detailed hover documentation that would normally be available when using the components.
+
+## Adding DOM Event Support
+
+### DOM Event Handlers
+
+Custom elements can respond to standard DOM events like clicks, keyboard input, and focus changes. There are two ways to add these event types to your components:
+
+### 1. Using `includeDefaultDOMEvents`
+
+The simplest approach - automatically include all standard DOM event handlers:
+
+```ts
+{
+  includeDefaultDOMEvents: true; // Adds onClick, onKeyDown, onFocus, etc. to all components
+}
+```
+
+This adds common event handlers like `onClick`, `onMouseOver`, `onKeyDown`, etc. to all your components.
+
+### 2. Using `globalEvents` for Custom Control
+
+For more control over which events are included:
+
+```ts
+{
+  globalEvents: `
+    // Only include the events you need
+    /** Triggered when the user clicks the element */
+    onMyClick?: (event: MouseEvent) => void;
+    
+    /** Triggered when the element gains focus */
+    onMyFocus?: (event: FocusEvent) => void;
+  `;
+}
+```
+
+### Combining Both Approaches
+
+You can use both options together:
+
+```ts
+{
+  // Include standard DOM events
+  includeDefaultDOMEvents: true,
+
+  // Add your own custom events
+  globalEvents: `
+    /** Custom event fired when special action occurs */
+    onMySpecialEvent?: (event: CustomEvent<{ id: string }>) => void;
+  `
+}
+```
+
+### Available Default DOM Events
+
+When using `includeDefaultDOMEvents: true`, the following event categories are included:
+
+- **Mouse Events**: onClick, onContextMenu, onDoubleClick, onDrag, onDragEnd, etc.
+- **Keyboard Events**: onKeyDown, onKeyUp, onKeyPress
+- **Focus Events**: onFocus, onBlur
+- **Form Events**: onChange, onInput, onSubmit, onReset
+- **UI Events**: onScroll
+- **Wheel Events**: onWheel
+- **Animation Events**: onAnimationStart, onAnimationEnd, onAnimationIteration
+- **Transition Events**: onTransitionEnd
+- **Media Events**: onLoad, onError
+- **Clipboard Events**: onCopy, onCut, onPaste
+
+> **Tip:** Always include JSDoc comments for your custom events. These comments will appear in editor tooltips, improving the developer experience.

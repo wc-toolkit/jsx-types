@@ -12,6 +12,7 @@ import {
 } from "@wc-toolkit/cem-utilities";
 import * as cem from "custom-elements-manifest";
 import { Logger } from "./logger";
+import { GLOBAL_EVENTS, GLOBAL_PROPS } from "./global-types";
 
 const DEFAULT_OPTIONS: JsxTypesOptions = {
   fileName: "custom-element-jsx.d.ts",
@@ -38,14 +39,14 @@ export function generateJsxTypes(manifest: any, options: JsxTypesOptions = {}) {
   createOutDir(userOptions.outdir!);
   saveFile(userOptions.outdir!, userOptions.fileName!, template);
   log.green(
-    `[jsx-types] - Generated "${path.join(userOptions.outdir!, userOptions.fileName!)}".`
+    `[jsx-types] - Generated "${path.join(userOptions.outdir!, userOptions.fileName!)}".`,
   );
 }
 
 function getImports(
   manifest: cem.Package,
   options: JsxTypesOptions,
-  attrsAndProps: Map<string, AttributeAndProperty[]>
+  attrsAndProps: Map<string, AttributeAndProperty[]>,
 ) {
   const importTemplates: string[] = [];
   let modules: string[] = [];
@@ -87,7 +88,7 @@ function getImports(
         importTemplates.push(
           `import type { ${
             options.defaultExport ? `default as ${component.name}` : ""
-          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`
+          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`,
         );
       });
     }
@@ -135,77 +136,41 @@ export type ScopedElements<
 };
 
 type BaseProps = {
-  /** Content added between the opening and closing tags of the element */
-  children?: any;
-  /** Used for declaratively styling one or more elements using CSS (Cascading Stylesheets) */
-  class?: string;
-  /** Used for declaratively styling one or more elements using CSS (Cascading Stylesheets) */
-  className?: string;
-  /** Takes an object where the key is the class name(s) and the value is a boolean expression. When true, the class is applied, and when false, it is removed. */
-  classList?: Record<string, boolean | undefined>;
-  /** Specifies the text direction of the element. */
-  dir?: "ltr" | "rtl";
-  /** Contains a space-separated list of the part names of the element that should be exposed on the host element. */
-  exportparts?: string;
-  /** For <label> and <output>, lets you associate the label with some control. */
-  htmlFor?: string;
-  /** Specifies whether the element should be hidden. */
-  hidden?: boolean | string;
-  /** A unique identifier for the element. */
-  id?: string;
-  /** Keys tell React which array item each component corresponds to */
-  key?: string | number;
-  /** Specifies the language of the element. */
-  lang?: string;
-  /** Contains a space-separated list of the part names of the element. Part names allows CSS to select and style specific elements in a shadow tree via the ::part pseudo-element. */
-  part?: string;
-  /** Use the ref attribute with a variable to assign a DOM element to the variable once the element is rendered. */
-  ref?: unknown | ((e: unknown) => void);
-  /** Adds a reference for a custom element slot */
-  slot?: string;
-  /** Prop for setting inline styles */
-  style?: Record<string, string | number>;
-  /** Overrides the default Tab button behavior. Avoid using values other than -1 and 0. */
-  tabIndex?: number;
-  /** Specifies the tooltip text for the element. */
-  title?: string;
-  /** Passing 'no' excludes the element content from being translated. */
-  translate?: "yes" | "no";
-};
+${GLOBAL_PROPS}
+} ${userOptions.allowUnknownProps ? `& Record<string, any>` : ""};
 
-type BaseEvents = {${
-    Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""
-  }};
+type BaseEvents = {
+${userOptions.includeDefaultDOMEvents ? GLOBAL_EVENTS : ""}
+${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
+};
 
 ${components
   ?.map((component: Component) => {
     return `
 
 export type ${component.name}Props = {
-${
-  (() => {
-    const attrs = [...new Set(getAttrsAndProps(component))]
-    .map((prop) => {
-      return prop.attrName
-        ? `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
+${(() => {
+  const attrs =
+    [...new Set(getAttrsAndProps(component))]
+      .map((prop) => {
+        return prop.attrName && prop.propName !== prop.attrName
+          ? `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
   "${prop.attrName}"?: ${component.name}['${prop.propName}'];
   /** ${getMemberDescription(prop.description, prop.deprecated)} */
   "${prop.propName}"?: ${component.name}['${prop.propName}'];`
-        : `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
+          : `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
   "${prop.propName}"?: ${component.name}['${prop.propName}'];`;
-    })
-    .join("\n") || "";
-        console.log(attrs);
+      })
+      .join("\n") || "";
 
-    return attrs;
-  })()
-}
+  return attrs;
+})()}
 ${
   component.events
     ?.map((event) => {
       return `  /** ${getMemberDescription(
         event.description,
-        event.deprecated
+        event.deprecated,
       )} */
   "on${event.name}"?: (e: CustomEvent<${
     event.type?.text || "never"
@@ -233,25 +198,6 @@ ${components
   }
 `;
 }
-
-// function getTypeImportsFromGlobalType(
-//   components: Component[],
-//   options: JsxTypesOptions
-// ) {
-//   return options.globalTypePath
-//     ? `import type { ${components
-//         .map((c) => {
-//           const componentType = options.defaultExport
-//             ? `default as ${c.name}`
-//             : c.name;
-//           const types = getComponentEventsWithType(c, {
-//             overrideCustomEventType: options.overrideCustomEventType,
-//           });
-//           return componentType + (types ? `, ${types}` : "");
-//         })
-//         .join(", ")} } from "${options.globalTypePath}";`
-//     : "";
-// }
 
 function createOutDir(outDir: string) {
   if (outDir !== "./" && !fs.existsSync(outDir)) {

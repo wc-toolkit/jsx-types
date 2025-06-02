@@ -1,9 +1,11 @@
-import { generateJsxTypes } from '../dist/index.js';
-import manifest from './shoelace-cem.json' with { type: 'json' };
+import { generateJsxTypes } from "../dist/index.js";
+import manifest from "./shoelace-cem.json" with { type: "json" };
 
 generateJsxTypes(manifest, {
-  outdir: './demo/types',
+  outdir: "./demo/types",
+  includeGlobalEvents: true,
+  allowUnknownProps: true,
   componentDescriptionOptions: {
-    descriptionSrc: 'summary',
-  }
+    descriptionSrc: "summary",
+  },
 });

@@ -1,9 +1,8 @@
 /* eslint-disable no-undef */
 
-
 /**
  * Test component
- * 
+ *
  * @status beta - A beta component
  * @dependency Button - A button component
  * @dependency Icon
@@ -11,7 +10,7 @@
 export class MyComponent extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
@@ -30,4 +29,4 @@ export class MyComponent extends HTMLElement {
   }
 }
 
-customElements.define('my-component', MyComponent);
+customElements.define("my-component", MyComponent);

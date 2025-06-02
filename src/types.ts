@@ -1,6 +1,6 @@
 import { ComponentDescriptionOptions } from "@wc-toolkit/cem-utilities";
 
-export interface JsxTypesOptions {
+export type JsxTypesOptions = {
   /** Used to get a specific path for a given component */
   componentTypePath?: (name: string, tag?: string) => string;
   /** Name of the file generated */
@@ -13,8 +13,12 @@ export interface JsxTypesOptions {
   globalTypePath?: string;
   /** Indicates if the component classes are a default export rather than a named export */
   defaultExport?: boolean;
+  /** Include standard DOM events (ie - `onClick`, `onHover`, etc. */
+  includeDefaultDOMEvents?: boolean;
   /** Used to add global element props to all component types */
   globalEvents?: string;
+  /** Adds types to allow users to add undefined attributes or props to the custom elements */
+  allowUnknownProps?: boolean;
   /** Adds a prefix to tag references */
   prefix?: string;
   /** Adds a suffix to tag references */
@@ -27,4 +31,4 @@ export interface JsxTypesOptions {
   skip?: boolean;
   /** Shows contextual logs */
   debug?: boolean;
-}
+};
