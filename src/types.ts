@@ -2,7 +2,7 @@ import { ComponentDescriptionOptions } from "@wc-toolkit/cem-utilities";
 
 export type JsxTypesOptions = {
   /** Used to get a specific path for a given component */
-  componentTypePath?: (name: string, tag?: string) => string;
+  componentTypePath?: (name: string, tag?: string, modulePath?: string) => string;
   /** Name of the file generated */
   fileName?: string;
   /** Path to output directory */

@@ -1,8 +1,8 @@
+ 
 import fs from "fs";
 import path from "path";
 import { JsxTypesOptions } from "./types";
 import {
-  AttributeAndProperty,
   Component,
   getAllComponents,
   getAttrsAndProps,
@@ -65,19 +65,9 @@ export function generateJsxTypes(
   );
 }
 
-function getImports(
-  manifest: cem.Package,
-  options: JsxTypesOptions,
-  attrsAndProps: Map<string, AttributeAndProperty[]>
-) {
+function getImports(manifest: cem.Package, options: JsxTypesOptions) {
   const importTemplates: string[] = [];
   let modules: string[] = [];
-  const componentsWithoutProps = [];
-  attrsAndProps.forEach((props, componentName) => {
-    if (props.length === 0) {
-      componentsWithoutProps.push(componentName);
-    }
-  });
   const moduleNames: string[] = [];
 
   manifest.modules.forEach((module) => {
@@ -102,7 +92,7 @@ function getImports(
         const component = element as cem.CustomElement;
         const importPath =
           typeof options.componentTypePath === "function"
-            ? options.componentTypePath?.(component.name, component.tagName)
+            ? options.componentTypePath?.(component.name, component.tagName, module.path)
             : module.path;
         const uniqueExports: string[] = [];
 
@@ -116,7 +106,7 @@ function getImports(
           uniqueExports.push(exportName);
         });
 
-        if(!uniqueExports?.length) {
+        if (!uniqueExports?.length) {
           return;
         }
 
@@ -136,12 +126,7 @@ function getImports(
 
 function getTypeTemplate(manifest: cem.Package, options: JsxTypesOptions) {
   const components = getAllComponents(manifest, options.exclude);
-  const attrsAndProps = new Map<string, AttributeAndProperty[]>();
-  components.forEach((component: Component) => {
-    const props = getAttrsAndProps(component);
-    attrsAndProps.set(component.name, props);
-  });
-  const imports = getImports(manifest, options, attrsAndProps);
+  const imports = getImports(manifest, options);
 
   return `
 ${imports}
@@ -181,7 +166,14 @@ ${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
 
 ${components
   ?.map((component: Component) => {
-    const cachedProps = getAttrsAndProps(component);
+    if (!component.name || !component.tagName) {
+      return "";
+    }
+
+    const cachedProps =
+      getAttrsAndProps(component)?.filter(
+        (prop) => !prop.readonly && !prop.static
+      ) || [];
 
     return `
 
@@ -189,22 +181,32 @@ export type ${component.name}Props = {
 ${(() => {
   if (cachedProps.length === 0) return "";
 
-  return cachedProps
-    .map((prop) => {
-      const description = getMemberDescription(
-        prop.description,
-        prop.deprecated
-      );
+  return cachedProps.reduce((acc, prop) => {
+    const description = getMemberDescription(prop.description, prop.deprecated);
+    const type = prop.propName
+      ? `${component.name}['${prop.propName}']`
+      : "unknown";
 
-      return prop.attrName && prop.propName !== prop.attrName
-        ? `  /** ${description} */
-  "${prop.attrName}"?: ${component.name}['${prop.propName}'];
-  /** ${description} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`
-        : `  /** ${description} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`;
-    })
-    .join("\n");
+    // Check if we already have this property in the accumulator
+    const propExists = acc.includes(`  "${prop.propName}"?:`);
+    const attrExists = prop.attrName && acc.includes(`  "${prop.attrName}"?:`);
+
+    let result = acc;
+
+    // Add attribute declaration if it exists and doesn't match property name
+    if (prop.attrName && prop.propName !== prop.attrName && !attrExists) {
+      result += `  /** ${description} */
+  "${prop.attrName}"?: ${type};\n`;
+    }
+
+    // Add property declaration if it doesn't exist yet
+    if (!propExists) {
+      result += `  /** ${description} */
+  "${prop.propName}"?: ${type};\n`;
+    }
+
+    return result;
+  }, "");
 })()}
 ${
   component.events
@@ -226,6 +228,10 @@ ${
   export type CustomElements = {
 ${components
   .map((component) => {
+    if (!component.name || !component.tagName) {
+      return "";
+    }
+
     return `
 
   /**
