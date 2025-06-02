@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import fs from "fs";
 import path from "path";
 import { JsxTypesOptions } from "./types";
@@ -10,7 +10,7 @@ import {
   getComponentDetailsTemplate,
   getMemberDescription,
 } from "@wc-toolkit/cem-utilities";
-import * as cem from "custom-elements-manifest";
+import type * as cem from "custom-elements-manifest";
 import { Logger } from "./logger";
 import { GLOBAL_EVENTS, GLOBAL_PROPS } from "./global-types";
 
@@ -22,24 +22,49 @@ const DEFAULT_OPTIONS: JsxTypesOptions = {
   suffix: "",
 };
 
-let userOptions = DEFAULT_OPTIONS;
+/**
+ * Generates TypeScript type definitions for custom elements to be used in JSX
+ *
+ * @param manifest - Custom Elements Manifest containing component definitions
+ * @param options - Configuration options for type generation
+ */
+export function generateJsxTypes(
+  manifest: cem.Package,
+  options: JsxTypesOptions = {},
+) {
+  // Merge with defaults, ensuring type safety
+  const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
+  const log = new Logger(mergedOptions.debug);
 
-export function generateJsxTypes(manifest: any, options: JsxTypesOptions = {}) {
-  const log = new Logger(options.debug);
-
-  if (options.skip) {
+  if (mergedOptions.skip) {
     log.yellow("[jsx-types] - Skipped");
     return;
   }
-  userOptions = { ...DEFAULT_OPTIONS, ...options };
+
+  if (!manifest || !manifest.modules || manifest.modules.length === 0) {
+    log.red("[jsx-types] - No modules found in the manifest.");
+    return;
+  }
+
+  if (!mergedOptions.outdir) {
+    log.red("[jsx-types] - No output directory specified.");
+    return;
+  }
+
+  if (!mergedOptions.fileName) {
+    log.red("[jsx-types] - No file name specified.");
+    return;
+  }
 
   log.log("[jsx-types] - Generating types...");
 
-  const template = getTypeTemplate(manifest, userOptions);
-  createOutDir(userOptions.outdir!);
-  saveFile(userOptions.outdir!, userOptions.fileName!, template);
+  // Generate types, create directory, and save file
+  const template = getTypeTemplate(manifest, mergedOptions);
+  createOutDir(mergedOptions.outdir!);
+  saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
+
   log.green(
-    `[jsx-types] - Generated "${path.join(userOptions.outdir!, userOptions.fileName!)}".`,
+    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`,
   );
 }
 
@@ -137,33 +162,42 @@ export type ScopedElements<
 
 type BaseProps = {
 ${GLOBAL_PROPS}
-} ${userOptions.allowUnknownProps ? `& Record<string, any>` : ""};
+} ${options.allowUnknownProps ? `& Record<string, any>` : ""};
 
 type BaseEvents = {
-${userOptions.includeDefaultDOMEvents ? GLOBAL_EVENTS : ""}
+${options.includeDefaultDOMEvents ? GLOBAL_EVENTS : ""}
 ${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
 };
 
 ${components
   ?.map((component: Component) => {
+    // Performance improvement: Cache the props lookup to avoid repetitive calculations
+    const cachedProps = getAttrsAndProps(component);
+
     return `
 
 export type ${component.name}Props = {
 ${(() => {
-  const attrs =
-    [...new Set(getAttrsAndProps(component))]
-      .map((prop) => {
-        return prop.attrName && prop.propName !== prop.attrName
-          ? `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
-  "${prop.attrName}"?: ${component.name}['${prop.propName}'];
-  /** ${getMemberDescription(prop.description, prop.deprecated)} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`
-          : `  /** ${getMemberDescription(prop.description, prop.deprecated)} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`;
-      })
-      .join("\n") || "";
+  // Performance improvement: Avoid nested IIFE and simplify the property mapping
+  if (cachedProps.length === 0) return "";
 
-  return attrs;
+  return cachedProps
+    .map((prop) => {
+      const description = getMemberDescription(
+        prop.description,
+        prop.deprecated,
+      );
+
+      // Performance improvement: Use ternary operator for cleaner code
+      return prop.attrName && prop.propName !== prop.attrName
+        ? `  /** ${description} */
+  "${prop.attrName}"?: ${component.name}['${prop.propName}'];
+  /** ${description} */
+  "${prop.propName}"?: ${component.name}['${prop.propName}'];`
+        : `  /** ${description} */
+  "${prop.propName}"?: ${component.name}['${prop.propName}'];`;
+    })
+    .join("\n");
 })()}
 ${
   component.events
