@@ -1,4 +1,3 @@
- 
 import fs from "fs";
 import path from "path";
 import { JsxTypesOptions } from "./types";
@@ -30,7 +29,7 @@ const DEFAULT_OPTIONS: JsxTypesOptions = {
  */
 export function generateJsxTypes(
   manifest: cem.Package,
-  options: JsxTypesOptions = {},
+  options: JsxTypesOptions = {}
 ) {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
@@ -62,14 +61,14 @@ export function generateJsxTypes(
   saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
 
   log.green(
-    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`,
+    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`
   );
 }
 
 function getImports(
   manifest: cem.Package,
   options: JsxTypesOptions,
-  attrsAndProps: Map<string, AttributeAndProperty[]>,
+  attrsAndProps: Map<string, AttributeAndProperty[]>
 ) {
   const importTemplates: string[] = [];
   let modules: string[] = [];
@@ -82,6 +81,14 @@ function getImports(
   const moduleNames: string[] = [];
 
   manifest.modules.forEach((module) => {
+    if (
+      !module.declarations ||
+      !module.declarations.length ||
+      !module.declarations.some((d) => (d as cem.CustomElement).customElement)
+    ) {
+      return;
+    }
+
     if (options.globalTypePath) {
       // If a global type path is provided, we import all components as a single import
       modules = [
@@ -102,16 +109,21 @@ function getImports(
         module.exports?.forEach((e) => {
           const exportName = e.declaration.name;
 
-          if (moduleNames.includes(exportName)) {
+          if (!exportName || moduleNames.includes(exportName)) {
             return;
           }
           moduleNames.push(exportName);
           uniqueExports.push(exportName);
         });
+
+        if(!uniqueExports?.length) {
+          return;
+        }
+
         importTemplates.push(
           `import type { ${
             options.defaultExport ? `default as ${component.name}` : ""
-          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`,
+          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`
         );
       });
     }
@@ -181,7 +193,7 @@ ${(() => {
     .map((prop) => {
       const description = getMemberDescription(
         prop.description,
-        prop.deprecated,
+        prop.deprecated
       );
 
       return prop.attrName && prop.propName !== prop.attrName
@@ -199,7 +211,7 @@ ${
     ?.map((event) => {
       return `  /** ${getMemberDescription(
         event.description,
-        event.deprecated,
+        event.deprecated
       )} */
   "on${event.name}"?: (e: CustomEvent<${
     event.type?.text || "never"
