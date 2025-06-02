@@ -24,7 +24,7 @@ export const GLOBAL_PROPS = `
   /** Contains a space-separated list of the part names of the element. Part names allows CSS to select and style specific elements in a shadow tree via the ::part pseudo-element. */
   part?: string;
   /** Use the ref attribute with a variable to assign a DOM element to the variable once the element is rendered. */
-  ref?: unknown | ((e: unknown) => void);
+  ref?: T | ((e: T) => void);
   /** Adds a reference for a custom element slot */
   slot?: string;
   /** Prop for setting inline styles */

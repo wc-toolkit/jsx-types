@@ -160,7 +160,7 @@ export type ScopedElements<
   [Key in keyof CustomElements as \`\${Prefix}\${Key}\${Suffix}\`]: CustomElements[Key];
 };
 
-type BaseProps = {
+type BaseProps<T extends HTMLElement> = {
 ${GLOBAL_PROPS}
 } ${options.allowUnknownProps ? `& Record<string, any>` : ""};
 
@@ -226,7 +226,7 @@ ${components
   */
     "${options.prefix}${component.tagName}${options.suffix}": Partial<${
       component.name
-    }Props & BaseProps & BaseEvents>;`;
+    }Props & BaseProps<${component.name}> & BaseEvents>;`;
   })
   .join("\n")}
   }
