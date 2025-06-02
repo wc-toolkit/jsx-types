@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import { JsxTypesOptions } from "./types";
 import {
-  AttributeAndProperty,
   Component,
   getAllComponents,
   getAttrsAndProps,
@@ -30,7 +29,7 @@ const DEFAULT_OPTIONS: JsxTypesOptions = {
  */
 export function generateJsxTypes(
   manifest: cem.Package,
-  options: JsxTypesOptions = {},
+  options: JsxTypesOptions = {}
 ) {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
@@ -62,26 +61,24 @@ export function generateJsxTypes(
   saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
 
   log.green(
-    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`,
+    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`
   );
 }
 
-function getImports(
-  manifest: cem.Package,
-  options: JsxTypesOptions,
-  attrsAndProps: Map<string, AttributeAndProperty[]>,
-) {
+function getImports(manifest: cem.Package, options: JsxTypesOptions) {
   const importTemplates: string[] = [];
   let modules: string[] = [];
-  const componentsWithoutProps = [];
-  attrsAndProps.forEach((props, componentName) => {
-    if (props.length === 0) {
-      componentsWithoutProps.push(componentName);
-    }
-  });
   const moduleNames: string[] = [];
 
   manifest.modules.forEach((module) => {
+    if (
+      !module.declarations ||
+      !module.declarations.length ||
+      !module.declarations.some((d) => (d as cem.CustomElement).customElement)
+    ) {
+      return;
+    }
+
     if (options.globalTypePath) {
       // If a global type path is provided, we import all components as a single import
       modules = [
@@ -95,23 +92,28 @@ function getImports(
         const component = element as cem.CustomElement;
         const importPath =
           typeof options.componentTypePath === "function"
-            ? options.componentTypePath?.(component.name, component.tagName)
+            ? options.componentTypePath?.(component.name, component.tagName, module.path)
             : module.path;
         const uniqueExports: string[] = [];
 
         module.exports?.forEach((e) => {
           const exportName = e.declaration.name;
 
-          if (moduleNames.includes(exportName)) {
+          if (!exportName || moduleNames.includes(exportName)) {
             return;
           }
           moduleNames.push(exportName);
           uniqueExports.push(exportName);
         });
+
+        if (!uniqueExports?.length) {
+          return;
+        }
+
         importTemplates.push(
           `import type { ${
             options.defaultExport ? `default as ${component.name}` : ""
-          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`,
+          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`
         );
       });
     }
@@ -124,12 +126,7 @@ function getImports(
 
 function getTypeTemplate(manifest: cem.Package, options: JsxTypesOptions) {
   const components = getAllComponents(manifest, options.exclude);
-  const attrsAndProps = new Map<string, AttributeAndProperty[]>();
-  components.forEach((component: Component) => {
-    const props = getAttrsAndProps(component);
-    attrsAndProps.set(component.name, props);
-  });
-  const imports = getImports(manifest, options, attrsAndProps);
+  const imports = getImports(manifest, options);
 
   return `
 ${imports}
@@ -169,7 +166,14 @@ ${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
 
 ${components
   ?.map((component: Component) => {
-    const cachedProps = getAttrsAndProps(component);
+    if (!component.name || !component.tagName) {
+      return "";
+    }
+
+    const cachedProps =
+      getAttrsAndProps(component)?.filter(
+        (prop) => !prop.readonly && !prop.static
+      ) || [];
 
     return `
 
@@ -177,29 +181,39 @@ export type ${component.name}Props = {
 ${(() => {
   if (cachedProps.length === 0) return "";
 
-  return cachedProps
-    .map((prop) => {
-      const description = getMemberDescription(
-        prop.description,
-        prop.deprecated,
-      );
+  return cachedProps.reduce((acc, prop) => {
+    const description = getMemberDescription(prop.description, prop.deprecated);
+    const type = prop.propName
+      ? `${component.name}['${prop.propName}']`
+      : "unknown";
 
-      return prop.attrName && prop.propName !== prop.attrName
-        ? `  /** ${description} */
-  "${prop.attrName}"?: ${component.name}['${prop.propName}'];
-  /** ${description} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`
-        : `  /** ${description} */
-  "${prop.propName}"?: ${component.name}['${prop.propName}'];`;
-    })
-    .join("\n");
+    // Check if we already have this property in the accumulator
+    const propExists = acc.includes(`  "${prop.propName}"?:`);
+    const attrExists = prop.attrName && acc.includes(`  "${prop.attrName}"?:`);
+
+    let result = acc;
+
+    // Add attribute declaration if it exists and doesn't match property name
+    if (prop.attrName && prop.propName !== prop.attrName && !attrExists) {
+      result += `  /** ${description} */
+  "${prop.attrName}"?: ${type};\n`;
+    }
+
+    // Add property declaration if it doesn't exist yet
+    if (!propExists) {
+      result += `  /** ${description} */
+  "${prop.propName}"?: ${type};\n`;
+    }
+
+    return result;
+  }, "");
 })()}
 ${
   component.events
     ?.map((event) => {
       return `  /** ${getMemberDescription(
         event.description,
-        event.deprecated,
+        event.deprecated
       )} */
   "on${event.name}"?: (e: CustomEvent<${
     event.type?.text || "never"
@@ -214,6 +228,10 @@ ${
   export type CustomElements = {
 ${components
   .map((component) => {
+    if (!component.name || !component.tagName) {
+      return "";
+    }
+
     return `
 
   /**
