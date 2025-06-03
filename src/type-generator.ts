@@ -147,6 +147,7 @@ ${imports}
  * }
  * \`\`\`
  * 
+ * @deprecated Runtime scoped elements result in duplicate types and can confusing for developers. It is recommended to use the \`prefix\` and \`suffix\` options to generate new types instead.
  */
 export type ScopedElements<
   Prefix extends string = "",
@@ -243,6 +244,10 @@ ${components
   })
   .join("\n")}
   }
+
+declare namespace JSX {
+  interface IntrinsicElements extends CustomElements {}
+}
 `;
 }
 
