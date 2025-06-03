@@ -79,7 +79,23 @@ export default {
 
 ## Implementation
 
-In order for teams to take advantage of this, all they need to do is import the types in their project and extend JSX's `IntrinsicElements`. They should immediately begin seeing the type support for your components in the editor.
+In order for teams to take advantage of this, all they need to do is import the types in their project. There are two ways to configure the JSX types:
+
+### Option 1: TSConfig Configuration
+
+Add the types to your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["path/to/jsx-types"]
+  }
+}
+```
+
+### Option 2: TypeScript Declaration File
+
+Create a declaration file and extend JSX's `IntrinsicElements`:
 
 ```ts
 // custom-elements-types.d.ts
