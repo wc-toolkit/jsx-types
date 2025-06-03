@@ -245,8 +245,46 @@ ${components
   .join("\n")}
   }
 
-declare namespace JSX {
-  interface IntrinsicElements extends CustomElements {}
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module 'preact' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module '@builder.io/qwik' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module '@stencil/core' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module 'hono' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module 'react-native' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
 }
 `;
 }
