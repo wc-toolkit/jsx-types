@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.2.1
+
+### Patch Changes
+
+- fd89b2e: Fix namespacing for type declarations
+
 ## 1.2.0
 
 ### Minor Changes
