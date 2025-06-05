@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.2.2
+
+### Patch Changes
+
+- a95f31b: Fix duplicate imports when `defaultExport` option is "true"
+
 ## 1.2.1
 
 ### Patch Changes
