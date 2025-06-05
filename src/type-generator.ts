@@ -1,4 +1,3 @@
- 
 import fs from "fs";
 import path from "path";
 import { JsxTypesOptions } from "./types";
@@ -92,7 +91,11 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
         const component = element as cem.CustomElement;
         const importPath =
           typeof options.componentTypePath === "function"
-            ? options.componentTypePath?.(component.name, component.tagName, module.path)
+            ? options.componentTypePath?.(
+                component.name,
+                component.tagName,
+                module.path
+              )
             : module.path;
         const uniqueExports: string[] = [];
 
@@ -110,10 +113,20 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
           return;
         }
 
+        if (options.defaultExport) {
+          uniqueExports.push(`default as ${component.name}`);
+        }
+
+        const exportList = options.defaultExport
+          ? uniqueExports
+              ?.filter((x) =>
+                options.defaultExport ? x !== component.name : false
+              )
+              .join(", ")
+          : uniqueExports?.join(", ");
+
         importTemplates.push(
-          `import type { ${
-            options.defaultExport ? `default as ${component.name}` : ""
-          } ${uniqueExports?.map((e) => e).join(", ")} } from "${importPath}";`
+          `import type { ${exportList} } from "${importPath}";`
         );
       });
     }

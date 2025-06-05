@@ -5,6 +5,7 @@ generateJsxTypes(manifest, {
   outdir: "./demo/types",
   includeGlobalEvents: true,
   allowUnknownProps: true,
+  defaultExport: false,
   componentDescriptionOptions: {
     descriptionSrc: "summary",
   },
