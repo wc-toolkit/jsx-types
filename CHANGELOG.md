@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.3.0
+
+### Minor Changes
+
+- 706bb2e: Added type generator for component custom CSS properties
+
 ## 1.2.2
 
 ### Patch Changes
