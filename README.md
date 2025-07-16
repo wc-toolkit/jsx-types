@@ -99,12 +99,13 @@ Create a declaration file and extend JSX's `IntrinsicElements`:
 
 ```ts
 // custom-elements-types.d.ts
-import type { CustomElements } from "path/to/jsx-types";
+import type { CustomElements, CustomCssProperties } from "path/to/jsx-types";
 
 declare module "my-app" {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  export interface CSSProperties extends CustomCssProperties {}
 }
 ```
 
