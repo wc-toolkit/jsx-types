@@ -19,6 +19,8 @@ export type JsxTypesOptions = {
   globalEvents?: string;
   /** Adds types to allow users to add undefined attributes or props to the custom elements */
   allowUnknownProps?: boolean;
+  /** Exclude types for CSS custom properties */
+  excludeCssCustomProperties?: boolean;
   /** Adds a prefix to tag references */
   prefix?: string;
   /** Adds a suffix to tag references */

@@ -140,6 +140,9 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
 function getTypeTemplate(manifest: cem.Package, options: JsxTypesOptions) {
   const components = getAllComponents(manifest, options.exclude);
   const imports = getImports(manifest, options);
+  const cssPropertiesTemplate = options.excludeCssCustomProperties
+    ? ""
+    : "export interface CSSProperties extends CustomCssProperties {}";
 
   return `
 ${imports}
@@ -258,46 +261,75 @@ ${components
   .join("\n")}
   }
 
+export type CustomCssProperties = {
+${(() => {
+  const uniqueCssProperties = new Set<string>();
+  const cssPropertiesArray: string[] = [];
+  
+  components.forEach((component) => {
+    component.cssProperties?.forEach((property) => {
+      if (!uniqueCssProperties.has(property.name)) {
+        uniqueCssProperties.add(property.name);
+        cssPropertiesArray.push(
+          `  /** ${getMemberDescription(property.description, property.deprecated)} */
+  "${property.name}"?: string;`
+        );
+      }
+    });
+  });
+  
+  return cssPropertiesArray.join("\n");
+})()}
+}
+
+
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare module 'preact' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare module '@builder.io/qwik' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare module '@stencil/core' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare module 'hono' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare module 'react-native' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 
 declare global {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+  ${cssPropertiesTemplate}
 }
 `;
 }
