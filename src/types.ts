@@ -2,7 +2,11 @@ import { ComponentDescriptionOptions } from "@wc-toolkit/cem-utilities";
 
 export type JsxTypesOptions = {
   /** Used to get a specific path for a given component */
-  componentTypePath?: (name: string, tag?: string, modulePath?: string) => string;
+  componentTypePath?: (
+    name: string,
+    tag?: string,
+    modulePath?: string,
+  ) => string;
   /** Name of the file generated */
   fileName?: string;
   /** Path to output directory */
@@ -21,10 +25,8 @@ export type JsxTypesOptions = {
   allowUnknownProps?: boolean;
   /** Exclude types for CSS custom properties */
   excludeCssCustomProperties?: boolean;
-  /** Adds a prefix to tag references */
-  prefix?: string;
-  /** Adds a suffix to tag references */
-  suffix?: string;
+  /** Optional function to format tag names before processing. */
+  tagFormatter?: (tagName: string) => string;
   /** Available options for configuring the way the components description is rendered */
   componentDescriptionOptions?: ComponentDescriptionOptions;
   /** Uses your custom event type instead of `CustomEvent<T>` */
@@ -33,4 +35,14 @@ export type JsxTypesOptions = {
   skip?: boolean;
   /** Shows contextual logs */
   debug?: boolean;
+  /**
+   * @deprecated use `tagFormatter` instead
+   * Adds a prefix to tag references
+   */
+  prefix?: string;
+  /**
+   * @deprecated use `tagFormatter` instead
+   * Adds a suffix to tag references
+   */
+  suffix?: string;
 };
