@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS: JsxTypesOptions = {
  */
 export function generateJsxTypes(
   manifest: cem.Package,
-  options: JsxTypesOptions = {}
+  options: JsxTypesOptions = {},
 ) {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const log = new Logger(mergedOptions.debug);
@@ -48,20 +48,25 @@ export function generateJsxTypes(
     return;
   }
 
-  if (!mergedOptions.fileName) {
-    log.red("[jsx-types] - No file name specified.");
-    return;
-  }
-
   log.log("[jsx-types] - Generating types...");
 
   const template = getTypeTemplate(manifest, mergedOptions);
-  createOutDir(mergedOptions.outdir!);
-  saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
+
+  // save file only if a filename is provided
+  if (mergedOptions.fileName) {
+    createOutDir(mergedOptions.outdir!);
+    saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
+  } else {
+    log.yellow(
+      `[jsx-types] - File generation skipped because \`fileName\` was not defined.`,
+    );
+  }
 
   log.green(
-    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`
+    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`,
   );
+
+  return template;
 }
 
 function getImports(manifest: cem.Package, options: JsxTypesOptions) {
@@ -94,7 +99,7 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
             ? options.componentTypePath?.(
                 component.name,
                 component.tagName,
-                module.path
+                module.path,
               )
             : module.path;
         const uniqueExports: string[] = [];
@@ -120,13 +125,13 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
         const exportList = options.defaultExport
           ? uniqueExports
               ?.filter((x) =>
-                options.defaultExport ? x !== component.name : false
+                options.defaultExport ? x !== component.name : false,
               )
               .join(", ")
           : uniqueExports?.join(", ");
 
         importTemplates.push(
-          `import type { ${exportList} } from "${importPath}";`
+          `import type { ${exportList} } from "${importPath}";`,
         );
       });
     }
@@ -149,12 +154,12 @@ ${imports}
 
 /**
  * This type can be used to create scoped tags for your components.
- * 
+ *
  * Usage:
- * 
+ *
  * \`\`\`ts
  * import type { ScopedElements } from "path/to/library/jsx-integration";
- * 
+ *
  * declare module "my-library" {
  *   namespace JSX {
  *     interface IntrinsicElements
@@ -162,7 +167,7 @@ ${imports}
  *   }
  * }
  * \`\`\`
- * 
+ *
  * @deprecated Runtime scoped elements result in duplicate types and can confusing for developers. It is recommended to use the \`prefix\` and \`suffix\` options to generate new types instead.
  */
 export type ScopedElements<
@@ -189,7 +194,7 @@ ${components
 
     const cachedProps =
       getAttrsAndProps(component)?.filter(
-        (prop) => !prop.readonly && !prop.static
+        (prop) => !prop.readonly && !prop.static,
       ) || [];
 
     return `
@@ -230,7 +235,7 @@ ${
     ?.map((event) => {
       return `  /** ${getMemberDescription(
         event.description,
-        event.deprecated
+        event.deprecated,
       )} */
   "on${event.name}"?: (e: CustomEvent<${
     event.type?.text || "never"
@@ -248,13 +253,20 @@ ${components
     if (!component.name || !component.tagName) {
       return "";
     }
+    
+    let tagName = component.tagName;
+    if(options.tagFormatter) {
+      tagName = options.tagFormatter(component.tagName)
+    } else if(options.prefix || options.suffix) {
+      tagName = `${options.prefix}${component.tagName}${options.suffix}`;
+    }
 
     return `
 
   /**
     ${getComponentDetailsTemplate(component, options.componentDescriptionOptions, true)}
   */
-    "${options.prefix}${component.tagName}${options.suffix}": Partial<${
+    "${tagName}": Partial<${
       component.name
     }Props & BaseProps<${component.name}> & BaseEvents>;`;
   })
@@ -265,19 +277,19 @@ export type CustomCssProperties = {
 ${(() => {
   const uniqueCssProperties = new Set<string>();
   const cssPropertiesArray: string[] = [];
-  
+
   components.forEach((component) => {
     component.cssProperties?.forEach((property) => {
       if (!uniqueCssProperties.has(property.name)) {
         uniqueCssProperties.add(property.name);
         cssPropertiesArray.push(
           `  /** ${getMemberDescription(property.description, property.deprecated)} */
-  "${property.name}"?: string;`
+  "${property.name}"?: string;`,
         );
       }
     });
   });
-  
+
   return cssPropertiesArray.join("\n");
 })()}
 }
