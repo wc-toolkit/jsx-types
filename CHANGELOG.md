@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.4.1
+
+### Patch Changes
+
+- b6f56f7: Fixed CJS export
+
 ## 1.4.0
 
 ### Minor Changes
