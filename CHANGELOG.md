@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.4.2
+
+### Patch Changes
+
+- 4870f71: Updated exports to explicitly define the exports and types
+
 ## 1.4.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@wc-toolkit/jsx-types",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "This package generates types for JSX environments for custom elements / web components",
   "type": "module",
   "main": "./dist/index.cjs",
