@@ -323,7 +323,7 @@ declare module '@stencil/core' {
   ${cssPropertiesTemplate}
 }
 
-declare module 'hono' {
+declare module 'hono/jsx' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
