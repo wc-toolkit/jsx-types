@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.4.3
+
+### Patch Changes
+
+- d775dac: Fixed module name for Hono JSX types
+
 ## 1.4.2
 
 ### Patch Changes
