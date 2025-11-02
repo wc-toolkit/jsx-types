@@ -343,6 +343,10 @@ declare global {
   }
   ${cssPropertiesTemplate}
 }
+
+declare module 'svelte/elements' {
+  export interface SvelteHTMLElements extends CustomElements { }
+}
 `;
 }
 
