@@ -1,5 +1,13 @@
 # @wc-toolkit/jsx-types
 
+## 1.5.0
+
+### Minor Changes
+
+- 798ff12: Deprecated the `overrideCustomEventType` option. This was never working as intended and has resulted in malformed types. It will be removed in the next major version.
+- 798ff12: Added `stronglyTypedEvents` config to strongly type the `event.target` property
+- 798ff12: Added types for SolidJS
+
 ## 1.4.3
 
 ### Patch Changes
