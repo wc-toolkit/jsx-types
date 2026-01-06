@@ -7,10 +7,12 @@ import {
   getAttrsAndProps,
   getComponentDetailsTemplate,
   getMemberDescription,
+  toPascalCase,
 } from "@wc-toolkit/cem-utilities";
 import type * as cem from "custom-elements-manifest";
 import { Logger } from "./logger";
 import { GLOBAL_EVENTS, GLOBAL_PROPS } from "./global-types";
+import prettier from "@prettier/sync";
 
 const DEFAULT_OPTIONS: JsxTypesOptions = {
   fileName: "custom-element-jsx.d.ts",
@@ -148,7 +150,6 @@ function getTypeTemplate(manifest: cem.Package, options: JsxTypesOptions) {
   const cssPropertiesTemplate = options.excludeCssCustomProperties
     ? ""
     : "export interface CSSProperties extends CustomCssProperties {}";
-
   return `
 ${imports}
 
@@ -177,6 +178,22 @@ export type ScopedElements<
   [Key in keyof CustomElements as \`\${Prefix}\${Key}\${Suffix}\`]: CustomElements[Key];
 };
 
+${
+  options.stronglyTypedEvents
+    ? `/**
+  * A generic type for strongly typing custom events with their targets
+  * @template T - The type of the event target (extends EventTarget)
+  * @template D - The type of the detail payload for the custom event
+  */
+ type TypedEvent<
+   T extends EventTarget,
+   E = Event
+ > = E & {
+   target: T;
+ };`
+    : ""
+}
+
 type BaseProps<T extends HTMLElement> = {
 ${GLOBAL_PROPS}
 } ${options.allowUnknownProps ? `& Record<string, any>` : ""};
@@ -197,11 +214,18 @@ ${components
         (prop) => !prop.readonly && !prop.static,
       ) || [];
 
+    const strongEventTypes = getStrongEventTypes(component);
+
+    let solidTypes = "";
+
     return `
+${options.stronglyTypedEvents ? getStronglyTypedEvents(component) : ""}
 
 export type ${component.name}Props = {
 ${(() => {
-  if (cachedProps.length === 0) return "";
+  if (!cachedProps?.length) {
+    return "";
+  }
 
   return cachedProps.reduce((acc, prop) => {
     const description = getMemberDescription(prop.description, prop.deprecated);
@@ -217,14 +241,20 @@ ${(() => {
 
     // Add attribute declaration if it exists and doesn't match property name
     if (prop.attrName && prop.propName !== prop.attrName && !attrExists) {
-      result += `  /** ${description} */
-  "${prop.attrName}"?: ${type};\n`;
+      if(prop.propName !== prop.attrName) {
+        result += `  /** ${description} */
+          "${prop.attrName}"?: ${type};\n`;
+      }
+      solidTypes += `  /** ${description} */
+        "${prop.type?.text.includes("boolean") ? "bool" : "attr"}:${prop.attrName}"?: ${type};\n`;
     }
 
     // Add property declaration if it doesn't exist yet
     if (!propExists) {
       result += `  /** ${description} */
-  "${prop.propName}"?: ${type};\n`;
+        "${prop.propName}"?: ${type};\n`;
+      solidTypes += `  /** ${description} */
+        "prop:${prop.propName}"?: ${type};\n`;
     }
 
     return result;
@@ -232,17 +262,42 @@ ${(() => {
 })()}
 ${
   component.events
+    ?.filter((e) => e.name)
     ?.map((event) => {
+      const eventType = event.type?.text?.startsWith("{")
+        ? `CustomElement<${event.type.text}>`
+        : event.type?.text || "Event";
+      solidTypes += `  /** ${getMemberDescription(
+        event.description,
+        event.deprecated,
+      )} */
+  "on:${event.name}"?: (e: ${getEventTypeName(
+    eventType,
+    strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
+    component.name,
+    options.stronglyTypedEvents,
+  )}) => void;\n`;
       return `  /** ${getMemberDescription(
         event.description,
         event.deprecated,
       )} */
-  "on${event.name}"?: (e: CustomEvent<${
-    event.type?.text || "never"
-  }>) => void;`;
+  "on${event.name}"?: (e: ${getEventTypeName(
+    eventType,
+    strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
+    component.name,
+    options.stronglyTypedEvents,
+  )}) => void;\n`;
     })
-    .join("\n") || ""
+    .join("") || ""
 }
+}
+
+export type ${component.name}SolidJsProps = {
+${solidTypes}
+  /** Set the innerHTML of the element */
+  innerHTML?: string;
+  /** Set the textContent of the element */
+  textContent?: string | number;
 }`;
   })
   .join("\n")}
@@ -253,11 +308,11 @@ ${components
     if (!component.name || !component.tagName) {
       return "";
     }
-    
+
     let tagName = component.tagName;
-    if(options.tagFormatter) {
-      tagName = options.tagFormatter(component.tagName)
-    } else if(options.prefix || options.suffix) {
+    if (options.tagFormatter) {
+      tagName = options.tagFormatter(component.tagName);
+    } else if (options.prefix || options.suffix) {
       tagName = `${options.prefix}${component.tagName}${options.suffix}`;
     }
 
@@ -269,6 +324,32 @@ ${components
     "${tagName}": Partial<${
       component.name
     }Props & BaseProps<${component.name}> & BaseEvents>;`;
+  })
+  .join("\n")}
+  }
+
+  export type CustomElementsSolidJs = {
+${components
+  .map((component) => {
+    if (!component.name || !component.tagName) {
+      return "";
+    }
+
+    let tagName = component.tagName;
+    if (options.tagFormatter) {
+      tagName = options.tagFormatter(component.tagName);
+    } else if (options.prefix || options.suffix) {
+      tagName = `${options.prefix}${component.tagName}${options.suffix}`;
+    }
+
+    return `
+
+  /**
+    ${getComponentDetailsTemplate(component, options.componentDescriptionOptions, true)}
+  */
+    "${tagName}": Partial<${component.name}Props & ${
+      component.name
+    }SolidJsProps & BaseProps<${component.name}> & BaseEvents>;`;
   })
   .join("\n")}
   }
@@ -337,6 +418,13 @@ declare module 'react-native' {
   ${cssPropertiesTemplate}
 }
 
+declare module "solid-js" {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElementsSolidJs {}
+  }
+  ${cssPropertiesTemplate}
+}
+
 declare global {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
@@ -344,6 +432,68 @@ declare global {
   ${cssPropertiesTemplate}
 }
 `;
+}
+
+function getEventTypeName(
+  eventType: string,
+  strongEventType: string | null,
+  componentName: string = "",
+  stronglyTyped?: boolean,
+) {
+  return stronglyTyped
+    ? (strongEventType ?? `${componentName}Event`)
+    : eventType;
+}
+
+function getStrongEventTypes(component: Component) {
+  const eventTypes = component?.events
+    ?.filter((e) => e.name)
+    ?.map((event) => ({
+      name: event.name,
+      type: event?.type?.text,
+    }));
+
+  if (!eventTypes) {
+    return [];
+  }
+
+  return eventTypes
+    .filter(
+      (eventType) =>
+        eventType.type &&
+        eventType.type !== "Event" &&
+        eventType.type !== "CustomEvent",
+    )
+    .map((eventType) => {
+      return {
+        name: eventType.name,
+        type: eventType.type.startsWith("{")
+          ? `CustomEvent<${eventType.type}>`
+          : eventType.type,
+        newType: `${component.name}${toPascalCase(eventType.name)}Event`,
+      };
+    });
+}
+
+function getStronglyTypedEvents(component: Component): string {
+  if (!component.events?.length) {
+    return "";
+  }
+
+  const eventTypes = getStrongEventTypes(component);
+  const types: string[] = [
+    `/** \`${component.name}\` component event */
+     export type ${component.name}Event<E = Event> = TypedEvent<${component.name}, E>;`,
+  ];
+
+  eventTypes.forEach((eventType) => {
+    types.push(
+      `/** \`${eventType.name}\` event type */
+      export type ${eventType.newType} = ${component.name}Event<${eventType.type}>;`,
+    );
+  });
+
+  return types.join("\n");
 }
 
 function createOutDir(outDir: string) {
@@ -355,7 +505,10 @@ function createOutDir(outDir: string) {
 function saveFile(outDir: string, fileName: string, contents: string) {
   const outputPath = path.join(outDir, fileName);
 
-  fs.writeFileSync(outputPath, contents);
+  fs.writeFileSync(
+    outputPath,
+    prettier.format(contents, { parser: "typescript", printWidth: 80 }),
+  );
 
   return outputPath;
 }

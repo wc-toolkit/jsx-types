@@ -17,6 +17,8 @@ export type JsxTypesOptions = {
   globalTypePath?: string;
   /** Indicates if the component classes are a default export rather than a named export */
   defaultExport?: boolean;
+  /** Creates event types where the event's target is stringly typed to the custom element */
+  stronglyTypedEvents?: boolean;
   /** Include standard DOM events (ie - `onClick`, `onHover`, etc. */
   includeDefaultDOMEvents?: boolean;
   /** Used to add global element props to all component types */
@@ -29,7 +31,7 @@ export type JsxTypesOptions = {
   tagFormatter?: (tagName: string) => string;
   /** Available options for configuring the way the components description is rendered */
   componentDescriptionOptions?: ComponentDescriptionOptions;
-  /** Uses your custom event type instead of `CustomEvent<T>` */
+  /** @deprecated This feature never worked as intended and will be removed in the next major release */
   overrideCustomEventType?: boolean;
   /** Skips the code from running */
   skip?: boolean;

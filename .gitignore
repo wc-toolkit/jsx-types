@@ -131,3 +131,5 @@ dist
 
 # project
 demo/types
+demo/**/types
+.DS_Store
