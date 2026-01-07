@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.5.2
+
+### Patch Changes
+
+- 5982e68: Fixed issue where `CustomEvent` was returning `CustomElement`
+
 ## 1.5.1
 
 ### Patch Changes
