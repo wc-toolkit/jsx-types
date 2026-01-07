@@ -142,7 +142,7 @@ type BaseProps<T extends HTMLElement> = {
 type BaseEvents = {};
 
 /** `SlAlert` component event */
-export type SlAlertEvent<E = Event> = TypedEvent<SlAlert, E>;
+export type SlAlertElementEvent<E = Event> = TypedEvent<SlAlert, E>;
 
 export type SlAlertProps = {
   /** Indicates whether or not the alert is open. You can toggle this attribute to show and hide the alert, or you can
@@ -165,13 +165,13 @@ Typically used to indicate the remaining time before a whole app refresh. */
   countdownElement?: SlAlert["countdownElement"];
 
   /** Emitted when the alert opens. */
-  "onsl-show"?: (e: SlAlertEvent) => void;
+  "onsl-show"?: (e: SlAlertElementEvent) => void;
   /** Emitted after the alert opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlAlertEvent) => void;
+  "onsl-after-show"?: (e: SlAlertElementEvent) => void;
   /** Emitted when the alert closes. */
-  "onsl-hide"?: (e: SlAlertEvent) => void;
+  "onsl-hide"?: (e: SlAlertElementEvent) => void;
   /** Emitted after the alert closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlAlertEvent) => void;
+  "onsl-after-hide"?: (e: SlAlertElementEvent) => void;
 };
 
 export type SlAlertSolidJsProps = {
@@ -194,13 +194,13 @@ Typically used to indicate the remaining time before a whole app refresh. */
   /**  */
   "prop:countdownElement"?: SlAlert["countdownElement"];
   /** Emitted when the alert opens. */
-  "on:sl-show"?: (e: SlAlertEvent) => void;
+  "on:sl-show"?: (e: SlAlertElementEvent) => void;
   /** Emitted after the alert opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlAlertEvent) => void;
+  "on:sl-after-show"?: (e: SlAlertElementEvent) => void;
   /** Emitted when the alert closes. */
-  "on:sl-hide"?: (e: SlAlertEvent) => void;
+  "on:sl-hide"?: (e: SlAlertElementEvent) => void;
   /** Emitted after the alert closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlAlertEvent) => void;
+  "on:sl-after-hide"?: (e: SlAlertElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -209,7 +209,10 @@ Typically used to indicate the remaining time before a whole app refresh. */
 };
 
 /** `SlAnimatedImage` component event */
-export type SlAnimatedImageEvent<E = Event> = TypedEvent<SlAnimatedImage, E>;
+export type SlAnimatedImageElementEvent<E = Event> = TypedEvent<
+  SlAnimatedImage,
+  E
+>;
 
 export type SlAnimatedImageProps = {
   /** The path to the image to load. */
@@ -226,9 +229,9 @@ export type SlAnimatedImageProps = {
   isLoaded?: SlAnimatedImage["isLoaded"];
 
   /** Emitted when the image loads successfully. */
-  "onsl-load"?: (e: SlAnimatedImageEvent) => void;
+  "onsl-load"?: (e: SlAnimatedImageElementEvent) => void;
   /** Emitted when the image fails to load. */
-  "onsl-error"?: (e: SlAnimatedImageEvent) => void;
+  "onsl-error"?: (e: SlAnimatedImageElementEvent) => void;
 };
 
 export type SlAnimatedImageSolidJsProps = {
@@ -245,9 +248,9 @@ export type SlAnimatedImageSolidJsProps = {
   /**  */
   "prop:isLoaded"?: SlAnimatedImage["isLoaded"];
   /** Emitted when the image loads successfully. */
-  "on:sl-load"?: (e: SlAnimatedImageEvent) => void;
+  "on:sl-load"?: (e: SlAnimatedImageElementEvent) => void;
   /** Emitted when the image fails to load. */
-  "on:sl-error"?: (e: SlAnimatedImageEvent) => void;
+  "on:sl-error"?: (e: SlAnimatedImageElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -256,7 +259,7 @@ export type SlAnimatedImageSolidJsProps = {
 };
 
 /** `SlAnimation` component event */
-export type SlAnimationEvent<E = Event> = TypedEvent<SlAnimation, E>;
+export type SlAnimationElementEvent<E = Event> = TypedEvent<SlAnimation, E>;
 
 export type SlAnimationProps = {
   /** The name of the built-in animation to use. For custom animations, use the `keyframes` prop. */
@@ -302,11 +305,11 @@ value can be changed without causing the animation to restart. */
   currentTime?: SlAnimation["currentTime"];
 
   /** Emitted when the animation is canceled. */
-  "onsl-cancel"?: (e: SlAnimationEvent) => void;
+  "onsl-cancel"?: (e: SlAnimationElementEvent) => void;
   /** Emitted when the animation finishes. */
-  "onsl-finish"?: (e: SlAnimationEvent) => void;
+  "onsl-finish"?: (e: SlAnimationElementEvent) => void;
   /** Emitted when the animation starts or restarts. */
-  "onsl-start"?: (e: SlAnimationEvent) => void;
+  "onsl-start"?: (e: SlAnimationElementEvent) => void;
 };
 
 export type SlAnimationSolidJsProps = {
@@ -352,11 +355,11 @@ value can be changed without causing the animation to restart. */
   /** Gets and sets the current animation time. */
   "prop:currentTime"?: SlAnimation["currentTime"];
   /** Emitted when the animation is canceled. */
-  "on:sl-cancel"?: (e: SlAnimationEvent) => void;
+  "on:sl-cancel"?: (e: SlAnimationElementEvent) => void;
   /** Emitted when the animation finishes. */
-  "on:sl-finish"?: (e: SlAnimationEvent) => void;
+  "on:sl-finish"?: (e: SlAnimationElementEvent) => void;
   /** Emitted when the animation starts or restarts. */
-  "on:sl-start"?: (e: SlAnimationEvent) => void;
+  "on:sl-start"?: (e: SlAnimationElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -365,7 +368,7 @@ value can be changed without causing the animation to restart. */
 };
 
 /** `SlAvatar` component event */
-export type SlAvatarEvent<E = Event> = TypedEvent<SlAvatar, E>;
+export type SlAvatarElementEvent<E = Event> = TypedEvent<SlAvatar, E>;
 
 export type SlAvatarProps = {
   /** The image source to use for the avatar. */
@@ -380,7 +383,7 @@ export type SlAvatarProps = {
   shape?: SlAvatar["shape"];
 
   /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
-  "onsl-error"?: (e: SlAvatarEvent) => void;
+  "onsl-error"?: (e: SlAvatarElementEvent) => void;
 };
 
 export type SlAvatarSolidJsProps = {
@@ -395,7 +398,7 @@ export type SlAvatarSolidJsProps = {
   /** The shape of the avatar. */
   "prop:shape"?: SlAvatar["shape"];
   /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
-  "on:sl-error"?: (e: SlAvatarEvent) => void;
+  "on:sl-error"?: (e: SlAvatarElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -452,7 +455,7 @@ screen readers and other assistive devices to provide more context for users. */
 };
 
 /** `SlButton` component event */
-export type SlButtonEvent<E = Event> = TypedEvent<SlButton, E>;
+export type SlButtonElementEvent<E = Event> = TypedEvent<SlButton, E>;
 
 export type SlButtonProps = {
   /**  */
@@ -523,11 +526,11 @@ value of this attribute must be an id of a form in the same document or shadow r
   invalid?: SlButton["invalid"];
 
   /** Emitted when the button loses focus. */
-  "onsl-blur"?: (e: SlButtonEvent) => void;
+  "onsl-blur"?: (e: SlButtonElementEvent) => void;
   /** Emitted when the button gains focus. */
-  "onsl-focus"?: (e: SlButtonEvent) => void;
+  "onsl-focus"?: (e: SlButtonElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlButtonEvent) => void;
+  "onsl-invalid"?: (e: SlButtonElementEvent) => void;
 };
 
 export type SlButtonSolidJsProps = {
@@ -598,11 +601,11 @@ value of this attribute must be an id of a form in the same document or shadow r
   /**  */
   "prop:invalid"?: SlButton["invalid"];
   /** Emitted when the button loses focus. */
-  "on:sl-blur"?: (e: SlButtonEvent) => void;
+  "on:sl-blur"?: (e: SlButtonElementEvent) => void;
   /** Emitted when the button gains focus. */
-  "on:sl-focus"?: (e: SlButtonEvent) => void;
+  "on:sl-focus"?: (e: SlButtonElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlButtonEvent) => void;
+  "on:sl-invalid"?: (e: SlButtonElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -674,9 +677,9 @@ export type SlCardSolidJsProps = {
 };
 
 /** `SlCarousel` component event */
-export type SlCarouselEvent<E = Event> = TypedEvent<SlCarousel, E>;
+export type SlCarouselElementEvent<E = Event> = TypedEvent<SlCarousel, E>;
 /** `sl-slide-change` event type */
-export type SlCarouselSlSlideChangeEvent = SlCarouselEvent<
+export type SlCarouselSlSlideChangeElementEvent = SlCarouselElementEvent<
   CustomEvent<{ index: number; slide: SlCarouselItem }>
 >;
 
@@ -721,7 +724,7 @@ greater than one. It can't be higher than `slides-per-page`. */
   dragging?: SlCarousel["dragging"];
 
   /** Emitted when the active slide changes. */
-  "onsl-slide-change"?: (e: SlCarouselSlSlideChangeEvent) => void;
+  "onsl-slide-change"?: (e: SlCarouselSlSlideChangeElementEvent) => void;
 };
 
 export type SlCarouselSolidJsProps = {
@@ -764,7 +767,7 @@ greater than one. It can't be higher than `slides-per-page`. */
   /**  */
   "prop:dragging"?: SlCarousel["dragging"];
   /** Emitted when the active slide changes. */
-  "on:sl-slide-change"?: (e: SlCarouselSlSlideChangeEvent) => void;
+  "on:sl-slide-change"?: (e: SlCarouselSlSlideChangeElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -782,7 +785,7 @@ export type SlCarouselItemSolidJsProps = {
 };
 
 /** `SlCheckbox` component event */
-export type SlCheckboxEvent<E = Event> = TypedEvent<SlCheckbox, E>;
+export type SlCheckboxElementEvent<E = Event> = TypedEvent<SlCheckbox, E>;
 
 export type SlCheckboxProps = {
   /**  */
@@ -816,15 +819,15 @@ the same document or shadow root for this to work. */
   defaultChecked?: SlCheckbox["defaultChecked"];
 
   /** Emitted when the checkbox loses focus. */
-  "onsl-blur"?: (e: SlCheckboxEvent) => void;
+  "onsl-blur"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checked state changes. */
-  "onsl-change"?: (e: SlCheckboxEvent) => void;
+  "onsl-change"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checkbox gains focus. */
-  "onsl-focus"?: (e: SlCheckboxEvent) => void;
+  "onsl-focus"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checkbox receives input. */
-  "onsl-input"?: (e: SlCheckboxEvent) => void;
+  "onsl-input"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlCheckboxEvent) => void;
+  "onsl-invalid"?: (e: SlCheckboxElementEvent) => void;
 };
 
 export type SlCheckboxSolidJsProps = {
@@ -858,15 +861,15 @@ the same document or shadow root for this to work. */
   /** The default value of the form control. Primarily used for resetting the form control. */
   "prop:defaultChecked"?: SlCheckbox["defaultChecked"];
   /** Emitted when the checkbox loses focus. */
-  "on:sl-blur"?: (e: SlCheckboxEvent) => void;
+  "on:sl-blur"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checked state changes. */
-  "on:sl-change"?: (e: SlCheckboxEvent) => void;
+  "on:sl-change"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checkbox gains focus. */
-  "on:sl-focus"?: (e: SlCheckboxEvent) => void;
+  "on:sl-focus"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the checkbox receives input. */
-  "on:sl-input"?: (e: SlCheckboxEvent) => void;
+  "on:sl-input"?: (e: SlCheckboxElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlCheckboxEvent) => void;
+  "on:sl-invalid"?: (e: SlCheckboxElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -875,7 +878,7 @@ the same document or shadow root for this to work. */
 };
 
 /** `SlColorPicker` component event */
-export type SlColorPickerEvent<E = Event> = TypedEvent<SlColorPicker, E>;
+export type SlColorPickerElementEvent<E = Event> = TypedEvent<SlColorPicker, E>;
 
 export type SlColorPickerProps = {
   /** The current value of the color picker. The value's format will vary based the `format` attribute. To get the value
@@ -931,15 +934,15 @@ the same document or shadow root for this to work. */
   defaultValue?: SlColorPicker["defaultValue"];
 
   /** Emitted when the color picker loses focus. */
-  "onsl-blur"?: (e: SlColorPickerEvent) => void;
+  "onsl-blur"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker's value changes. */
-  "onsl-change"?: (e: SlColorPickerEvent) => void;
+  "onsl-change"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker receives focus. */
-  "onsl-focus"?: (e: SlColorPickerEvent) => void;
+  "onsl-focus"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker receives input. */
-  "onsl-input"?: (e: SlColorPickerEvent) => void;
+  "onsl-input"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlColorPickerEvent) => void;
+  "onsl-invalid"?: (e: SlColorPickerElementEvent) => void;
 };
 
 export type SlColorPickerSolidJsProps = {
@@ -995,15 +998,15 @@ the same document or shadow root for this to work. */
   /** The default value of the form control. Primarily used for resetting the form control. */
   "prop:defaultValue"?: SlColorPicker["defaultValue"];
   /** Emitted when the color picker loses focus. */
-  "on:sl-blur"?: (e: SlColorPickerEvent) => void;
+  "on:sl-blur"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker's value changes. */
-  "on:sl-change"?: (e: SlColorPickerEvent) => void;
+  "on:sl-change"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker receives focus. */
-  "on:sl-focus"?: (e: SlColorPickerEvent) => void;
+  "on:sl-focus"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the color picker receives input. */
-  "on:sl-input"?: (e: SlColorPickerEvent) => void;
+  "on:sl-input"?: (e: SlColorPickerElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlColorPickerEvent) => void;
+  "on:sl-invalid"?: (e: SlColorPickerElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1012,7 +1015,7 @@ the same document or shadow root for this to work. */
 };
 
 /** `SlCopyButton` component event */
-export type SlCopyButtonEvent<E = Event> = TypedEvent<SlCopyButton, E>;
+export type SlCopyButtonElementEvent<E = Event> = TypedEvent<SlCopyButton, E>;
 
 export type SlCopyButtonProps = {
   /** The text value to copy. */
@@ -1062,9 +1065,9 @@ scenarios. */
   status?: SlCopyButton["status"];
 
   /** Emitted when the data has been copied. */
-  "onsl-copy"?: (e: SlCopyButtonEvent) => void;
+  "onsl-copy"?: (e: SlCopyButtonElementEvent) => void;
   /** Emitted when the data could not be copied. */
-  "onsl-error"?: (e: SlCopyButtonEvent) => void;
+  "onsl-error"?: (e: SlCopyButtonElementEvent) => void;
 };
 
 export type SlCopyButtonSolidJsProps = {
@@ -1114,9 +1117,9 @@ scenarios. */
   /**  */
   "prop:status"?: SlCopyButton["status"];
   /** Emitted when the data has been copied. */
-  "on:sl-copy"?: (e: SlCopyButtonEvent) => void;
+  "on:sl-copy"?: (e: SlCopyButtonElementEvent) => void;
   /** Emitted when the data could not be copied. */
-  "on:sl-error"?: (e: SlCopyButtonEvent) => void;
+  "on:sl-error"?: (e: SlCopyButtonElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1125,7 +1128,7 @@ scenarios. */
 };
 
 /** `SlDetails` component event */
-export type SlDetailsEvent<E = Event> = TypedEvent<SlDetails, E>;
+export type SlDetailsElementEvent<E = Event> = TypedEvent<SlDetails, E>;
 
 export type SlDetailsProps = {
   /** Indicates whether or not the details is open. You can toggle this attribute to show and hide the details, or you
@@ -1147,13 +1150,13 @@ can use the `show()` and `hide()` methods and this attribute will reflect the de
   detailsObserver?: SlDetails["detailsObserver"];
 
   /** Emitted when the details opens. */
-  "onsl-show"?: (e: SlDetailsEvent) => void;
+  "onsl-show"?: (e: SlDetailsElementEvent) => void;
   /** Emitted after the details opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlDetailsEvent) => void;
+  "onsl-after-show"?: (e: SlDetailsElementEvent) => void;
   /** Emitted when the details closes. */
-  "onsl-hide"?: (e: SlDetailsEvent) => void;
+  "onsl-hide"?: (e: SlDetailsElementEvent) => void;
   /** Emitted after the details closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlDetailsEvent) => void;
+  "onsl-after-hide"?: (e: SlDetailsElementEvent) => void;
 };
 
 export type SlDetailsSolidJsProps = {
@@ -1175,13 +1178,13 @@ can use the `show()` and `hide()` methods and this attribute will reflect the de
   /**  */
   "prop:detailsObserver"?: SlDetails["detailsObserver"];
   /** Emitted when the details opens. */
-  "on:sl-show"?: (e: SlDetailsEvent) => void;
+  "on:sl-show"?: (e: SlDetailsElementEvent) => void;
   /** Emitted after the details opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlDetailsEvent) => void;
+  "on:sl-after-show"?: (e: SlDetailsElementEvent) => void;
   /** Emitted when the details closes. */
-  "on:sl-hide"?: (e: SlDetailsEvent) => void;
+  "on:sl-hide"?: (e: SlDetailsElementEvent) => void;
   /** Emitted after the details closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlDetailsEvent) => void;
+  "on:sl-after-hide"?: (e: SlDetailsElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1190,9 +1193,9 @@ can use the `show()` and `hide()` methods and this attribute will reflect the de
 };
 
 /** `SlDialog` component event */
-export type SlDialogEvent<E = Event> = TypedEvent<SlDialog, E>;
+export type SlDialogElementEvent<E = Event> = TypedEvent<SlDialog, E>;
 /** `sl-request-close` event type */
-export type SlDialogSlRequestCloseEvent = SlDialogEvent<
+export type SlDialogSlRequestCloseElementEvent = SlDialogElementEvent<
   CustomEvent<{ source: "close-button" | "keyboard" | "overlay" }>
 >;
 
@@ -1219,17 +1222,17 @@ accessible way for users to dismiss the dialog. */
   overlay?: SlDialog["overlay"];
 
   /** Emitted when the dialog opens. */
-  "onsl-show"?: (e: SlDialogEvent) => void;
+  "onsl-show"?: (e: SlDialogElementEvent) => void;
   /** Emitted after the dialog opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlDialogEvent) => void;
+  "onsl-after-show"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the dialog closes. */
-  "onsl-hide"?: (e: SlDialogEvent) => void;
+  "onsl-hide"?: (e: SlDialogElementEvent) => void;
   /** Emitted after the dialog closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlDialogEvent) => void;
+  "onsl-after-hide"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the dialog opens and is ready to receive focus. Calling `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input. */
-  "onsl-initial-focus"?: (e: SlDialogEvent) => void;
+  "onsl-initial-focus"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the user attempts to close the dialog by clicking the close button, clicking the overlay, or pressing escape. Calling `event.preventDefault()` will keep the dialog open. Avoid using this unless closing the dialog will result in destructive behavior such as data loss. */
-  "onsl-request-close"?: (e: SlDialogSlRequestCloseEvent) => void;
+  "onsl-request-close"?: (e: SlDialogSlRequestCloseElementEvent) => void;
 };
 
 export type SlDialogSolidJsProps = {
@@ -1254,17 +1257,17 @@ accessible way for users to dismiss the dialog. */
   /**  */
   "prop:overlay"?: SlDialog["overlay"];
   /** Emitted when the dialog opens. */
-  "on:sl-show"?: (e: SlDialogEvent) => void;
+  "on:sl-show"?: (e: SlDialogElementEvent) => void;
   /** Emitted after the dialog opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlDialogEvent) => void;
+  "on:sl-after-show"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the dialog closes. */
-  "on:sl-hide"?: (e: SlDialogEvent) => void;
+  "on:sl-hide"?: (e: SlDialogElementEvent) => void;
   /** Emitted after the dialog closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlDialogEvent) => void;
+  "on:sl-after-hide"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the dialog opens and is ready to receive focus. Calling `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input. */
-  "on:sl-initial-focus"?: (e: SlDialogEvent) => void;
+  "on:sl-initial-focus"?: (e: SlDialogElementEvent) => void;
   /** Emitted when the user attempts to close the dialog by clicking the close button, clicking the overlay, or pressing escape. Calling `event.preventDefault()` will keep the dialog open. Avoid using this unless closing the dialog will result in destructive behavior such as data loss. */
-  "on:sl-request-close"?: (e: SlDialogSlRequestCloseEvent) => void;
+  "on:sl-request-close"?: (e: SlDialogSlRequestCloseElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1288,9 +1291,9 @@ export type SlDividerSolidJsProps = {
 };
 
 /** `SlDrawer` component event */
-export type SlDrawerEvent<E = Event> = TypedEvent<SlDrawer, E>;
+export type SlDrawerElementEvent<E = Event> = TypedEvent<SlDrawer, E>;
 /** `sl-request-close` event type */
-export type SlDrawerSlRequestCloseEvent = SlDrawerEvent<
+export type SlDrawerSlRequestCloseElementEvent = SlDrawerElementEvent<
   CustomEvent<{ source: "close-button" | "keyboard" | "overlay" }>
 >;
 
@@ -1322,17 +1325,17 @@ accessible way for users to dismiss the drawer. */
   overlay?: SlDrawer["overlay"];
 
   /** Emitted when the drawer opens. */
-  "onsl-show"?: (e: SlDrawerEvent) => void;
+  "onsl-show"?: (e: SlDrawerElementEvent) => void;
   /** Emitted after the drawer opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlDrawerEvent) => void;
+  "onsl-after-show"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the drawer closes. */
-  "onsl-hide"?: (e: SlDrawerEvent) => void;
+  "onsl-hide"?: (e: SlDrawerElementEvent) => void;
   /** Emitted after the drawer closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlDrawerEvent) => void;
+  "onsl-after-hide"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the drawer opens and is ready to receive focus. Calling `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input. */
-  "onsl-initial-focus"?: (e: SlDrawerEvent) => void;
+  "onsl-initial-focus"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the user attempts to close the drawer by clicking the close button, clicking the overlay, or pressing escape. Calling `event.preventDefault()` will keep the drawer open. Avoid using this unless closing the drawer will result in destructive behavior such as data loss. */
-  "onsl-request-close"?: (e: SlDrawerSlRequestCloseEvent) => void;
+  "onsl-request-close"?: (e: SlDrawerSlRequestCloseElementEvent) => void;
 };
 
 export type SlDrawerSolidJsProps = {
@@ -1362,17 +1365,17 @@ accessible way for users to dismiss the drawer. */
   /**  */
   "prop:overlay"?: SlDrawer["overlay"];
   /** Emitted when the drawer opens. */
-  "on:sl-show"?: (e: SlDrawerEvent) => void;
+  "on:sl-show"?: (e: SlDrawerElementEvent) => void;
   /** Emitted after the drawer opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlDrawerEvent) => void;
+  "on:sl-after-show"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the drawer closes. */
-  "on:sl-hide"?: (e: SlDrawerEvent) => void;
+  "on:sl-hide"?: (e: SlDrawerElementEvent) => void;
   /** Emitted after the drawer closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlDrawerEvent) => void;
+  "on:sl-after-hide"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the drawer opens and is ready to receive focus. Calling `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input. */
-  "on:sl-initial-focus"?: (e: SlDrawerEvent) => void;
+  "on:sl-initial-focus"?: (e: SlDrawerElementEvent) => void;
   /** Emitted when the user attempts to close the drawer by clicking the close button, clicking the overlay, or pressing escape. Calling `event.preventDefault()` will keep the drawer open. Avoid using this unless closing the drawer will result in destructive behavior such as data loss. */
-  "on:sl-request-close"?: (e: SlDrawerSlRequestCloseEvent) => void;
+  "on:sl-request-close"?: (e: SlDrawerSlRequestCloseElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1381,7 +1384,7 @@ accessible way for users to dismiss the drawer. */
 };
 
 /** `SlDropdown` component event */
-export type SlDropdownEvent<E = Event> = TypedEvent<SlDropdown, E>;
+export type SlDropdownElementEvent<E = Event> = TypedEvent<SlDropdown, E>;
 
 export type SlDropdownProps = {
   /** Indicates whether or not the dropdown is open. You can toggle this attribute to show and hide the dropdown, or you
@@ -1418,13 +1421,13 @@ components that use a dropdown internally. */
   containingElement?: SlDropdown["containingElement"];
 
   /** Emitted when the dropdown opens. */
-  "onsl-show"?: (e: SlDropdownEvent) => void;
+  "onsl-show"?: (e: SlDropdownElementEvent) => void;
   /** Emitted after the dropdown opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlDropdownEvent) => void;
+  "onsl-after-show"?: (e: SlDropdownElementEvent) => void;
   /** Emitted when the dropdown closes. */
-  "onsl-hide"?: (e: SlDropdownEvent) => void;
+  "onsl-hide"?: (e: SlDropdownElementEvent) => void;
   /** Emitted after the dropdown closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlDropdownEvent) => void;
+  "onsl-after-hide"?: (e: SlDropdownElementEvent) => void;
 };
 
 export type SlDropdownSolidJsProps = {
@@ -1461,13 +1464,13 @@ dropdowns that allow for multiple interactions. */
 components that use a dropdown internally. */
   "prop:containingElement"?: SlDropdown["containingElement"];
   /** Emitted when the dropdown opens. */
-  "on:sl-show"?: (e: SlDropdownEvent) => void;
+  "on:sl-show"?: (e: SlDropdownElementEvent) => void;
   /** Emitted after the dropdown opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlDropdownEvent) => void;
+  "on:sl-after-show"?: (e: SlDropdownElementEvent) => void;
   /** Emitted when the dropdown closes. */
-  "on:sl-hide"?: (e: SlDropdownEvent) => void;
+  "on:sl-hide"?: (e: SlDropdownElementEvent) => void;
   /** Emitted after the dropdown closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlDropdownEvent) => void;
+  "on:sl-after-hide"?: (e: SlDropdownElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1653,7 +1656,7 @@ export type SlFormatNumberSolidJsProps = {
 };
 
 /** `SlIcon` component event */
-export type SlIconEvent<E = Event> = TypedEvent<SlIcon, E>;
+export type SlIconElementEvent<E = Event> = TypedEvent<SlIcon, E>;
 
 export type SlIconProps = {
   /** The name of the icon to draw. Available names depend on the icon library being used. */
@@ -1668,9 +1671,9 @@ ignored by assistive devices. */
   library?: SlIcon["library"];
 
   /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
-  "onsl-load"?: (e: SlIconEvent) => void;
+  "onsl-load"?: (e: SlIconElementEvent) => void;
   /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
-  "onsl-error"?: (e: SlIconEvent) => void;
+  "onsl-error"?: (e: SlIconElementEvent) => void;
 };
 
 export type SlIconSolidJsProps = {
@@ -1685,9 +1688,9 @@ ignored by assistive devices. */
   /** The name of a registered custom icon library. */
   "prop:library"?: SlIcon["library"];
   /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
-  "on:sl-load"?: (e: SlIconEvent) => void;
+  "on:sl-load"?: (e: SlIconElementEvent) => void;
   /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
-  "on:sl-error"?: (e: SlIconEvent) => void;
+  "on:sl-error"?: (e: SlIconElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1696,9 +1699,9 @@ ignored by assistive devices. */
 };
 
 /** `SlInclude` component event */
-export type SlIncludeEvent<E = Event> = TypedEvent<SlInclude, E>;
+export type SlIncludeElementEvent<E = Event> = TypedEvent<SlInclude, E>;
 /** `sl-error` event type */
-export type SlIncludeSlErrorEvent = SlIncludeEvent<
+export type SlIncludeSlErrorElementEvent = SlIncludeElementEvent<
   CustomEvent<{ status: number }>
 >;
 
@@ -1716,9 +1719,9 @@ code and can result in XSS attacks. */
   allowScripts?: SlInclude["allowScripts"];
 
   /** Emitted when the included file is loaded. */
-  "onsl-load"?: (e: SlIncludeEvent) => void;
+  "onsl-load"?: (e: SlIncludeElementEvent) => void;
   /** Emitted when the included file fails to load due to an error. */
-  "onsl-error"?: (e: SlIncludeSlErrorEvent) => void;
+  "onsl-error"?: (e: SlIncludeSlErrorElementEvent) => void;
 };
 
 export type SlIncludeSolidJsProps = {
@@ -1734,9 +1737,9 @@ code and can result in XSS attacks. */
 code and can result in XSS attacks. */
   "prop:allowScripts"?: SlInclude["allowScripts"];
   /** Emitted when the included file is loaded. */
-  "on:sl-load"?: (e: SlIncludeEvent) => void;
+  "on:sl-load"?: (e: SlIncludeElementEvent) => void;
   /** Emitted when the included file fails to load due to an error. */
-  "on:sl-error"?: (e: SlIncludeSlErrorEvent) => void;
+  "on:sl-error"?: (e: SlIncludeSlErrorElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1745,7 +1748,7 @@ code and can result in XSS attacks. */
 };
 
 /** `SlIconButton` component event */
-export type SlIconButtonEvent<E = Event> = TypedEvent<SlIconButton, E>;
+export type SlIconButtonElementEvent<E = Event> = TypedEvent<SlIconButton, E>;
 
 export type SlIconButtonProps = {
   /** The name of the icon to draw. Available names depend on the icon library being used. */
@@ -1770,9 +1773,9 @@ that describes what the icon button does. */
   button?: SlIconButton["button"];
 
   /** Emitted when the icon button loses focus. */
-  "onsl-blur"?: (e: SlIconButtonEvent) => void;
+  "onsl-blur"?: (e: SlIconButtonElementEvent) => void;
   /** Emitted when the icon button gains focus. */
-  "onsl-focus"?: (e: SlIconButtonEvent) => void;
+  "onsl-focus"?: (e: SlIconButtonElementEvent) => void;
 };
 
 export type SlIconButtonSolidJsProps = {
@@ -1797,9 +1800,9 @@ that describes what the icon button does. */
   /**  */
   "prop:button"?: SlIconButton["button"];
   /** Emitted when the icon button loses focus. */
-  "on:sl-blur"?: (e: SlIconButtonEvent) => void;
+  "on:sl-blur"?: (e: SlIconButtonElementEvent) => void;
   /** Emitted when the icon button gains focus. */
-  "on:sl-focus"?: (e: SlIconButtonEvent) => void;
+  "on:sl-focus"?: (e: SlIconButtonElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1808,7 +1811,10 @@ that describes what the icon button does. */
 };
 
 /** `SlImageComparer` component event */
-export type SlImageComparerEvent<E = Event> = TypedEvent<SlImageComparer, E>;
+export type SlImageComparerElementEvent<E = Event> = TypedEvent<
+  SlImageComparer,
+  E
+>;
 
 export type SlImageComparerProps = {
   /** The position of the divider as a percentage. */
@@ -1819,7 +1825,7 @@ export type SlImageComparerProps = {
   handle?: SlImageComparer["handle"];
 
   /** Emitted when the position changes. */
-  "onsl-change"?: (e: SlImageComparerEvent) => void;
+  "onsl-change"?: (e: SlImageComparerElementEvent) => void;
 };
 
 export type SlImageComparerSolidJsProps = {
@@ -1830,7 +1836,7 @@ export type SlImageComparerSolidJsProps = {
   /**  */
   "prop:handle"?: SlImageComparer["handle"];
   /** Emitted when the position changes. */
-  "on:sl-change"?: (e: SlImageComparerEvent) => void;
+  "on:sl-change"?: (e: SlImageComparerElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -1839,7 +1845,7 @@ export type SlImageComparerSolidJsProps = {
 };
 
 /** `SlInput` component event */
-export type SlInputEvent<E = Event> = TypedEvent<SlInput, E>;
+export type SlInputElementEvent<E = Event> = TypedEvent<SlInput, E>;
 
 export type SlInputProps = {
   /**  */
@@ -1928,17 +1934,17 @@ keyboard on supportive devices. */
   valueAsNumber?: SlInput["valueAsNumber"];
 
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlInputEvent) => void;
+  "onsl-blur"?: (e: SlInputElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "onsl-change"?: (e: SlInputEvent) => void;
+  "onsl-change"?: (e: SlInputElementEvent) => void;
   /** Emitted when the clear button is activated. */
-  "onsl-clear"?: (e: SlInputEvent) => void;
+  "onsl-clear"?: (e: SlInputElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlInputEvent) => void;
+  "onsl-focus"?: (e: SlInputElementEvent) => void;
   /** Emitted when the control receives input. */
-  "onsl-input"?: (e: SlInputEvent) => void;
+  "onsl-input"?: (e: SlInputElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlInputEvent) => void;
+  "onsl-invalid"?: (e: SlInputElementEvent) => void;
 };
 
 export type SlInputSolidJsProps = {
@@ -2027,17 +2033,17 @@ keyboard on supportive devices. */
   /** Gets or sets the current value as a number. Returns `NaN` if the value can't be converted. */
   "prop:valueAsNumber"?: SlInput["valueAsNumber"];
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlInputEvent) => void;
+  "on:sl-blur"?: (e: SlInputElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "on:sl-change"?: (e: SlInputEvent) => void;
+  "on:sl-change"?: (e: SlInputElementEvent) => void;
   /** Emitted when the clear button is activated. */
-  "on:sl-clear"?: (e: SlInputEvent) => void;
+  "on:sl-clear"?: (e: SlInputElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlInputEvent) => void;
+  "on:sl-focus"?: (e: SlInputElementEvent) => void;
   /** Emitted when the control receives input. */
-  "on:sl-input"?: (e: SlInputEvent) => void;
+  "on:sl-input"?: (e: SlInputElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlInputEvent) => void;
+  "on:sl-invalid"?: (e: SlInputElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2046,9 +2052,9 @@ keyboard on supportive devices. */
 };
 
 /** `SlMenu` component event */
-export type SlMenuEvent<E = Event> = TypedEvent<SlMenu, E>;
+export type SlMenuElementEvent<E = Event> = TypedEvent<SlMenu, E>;
 /** `sl-select` event type */
-export type SlMenuSlSelectEvent = SlMenuEvent<
+export type SlMenuSlSelectElementEvent = SlMenuElementEvent<
   CustomEvent<{ item: SlMenuItem }>
 >;
 
@@ -2057,14 +2063,14 @@ export type SlMenuProps = {
   defaultSlot?: SlMenu["defaultSlot"];
 
   /** Emitted when a menu item is selected. */
-  "onsl-select"?: (e: SlMenuSlSelectEvent) => void;
+  "onsl-select"?: (e: SlMenuSlSelectElementEvent) => void;
 };
 
 export type SlMenuSolidJsProps = {
   /**  */
   "prop:defaultSlot"?: SlMenu["defaultSlot"];
   /** Emitted when a menu item is selected. */
-  "on:sl-select"?: (e: SlMenuSlSelectEvent) => void;
+  "on:sl-select"?: (e: SlMenuSlSelectElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2082,14 +2088,15 @@ export type SlMenuLabelSolidJsProps = {
 };
 
 /** `SlMutationObserver` component event */
-export type SlMutationObserverEvent<E = Event> = TypedEvent<
+export type SlMutationObserverElementEvent<E = Event> = TypedEvent<
   SlMutationObserver,
   E
 >;
 /** `sl-mutation` event type */
-export type SlMutationObserverSlMutationEvent = SlMutationObserverEvent<
-  CustomEvent<{ mutationList: MutationRecord[] }>
->;
+export type SlMutationObserverSlMutationElementEvent =
+  SlMutationObserverElementEvent<
+    CustomEvent<{ mutationList: MutationRecord[] }>
+  >;
 
 export type SlMutationObserverProps = {
   /** Watches for changes to attributes. To watch only specific attributes, separate them by a space, e.g.
@@ -2115,7 +2122,7 @@ export type SlMutationObserverProps = {
   disabled?: SlMutationObserver["disabled"];
 
   /** Emitted when a mutation occurs. */
-  "onsl-mutation"?: (e: SlMutationObserverSlMutationEvent) => void;
+  "onsl-mutation"?: (e: SlMutationObserverSlMutationElementEvent) => void;
 };
 
 export type SlMutationObserverSolidJsProps = {
@@ -2141,7 +2148,7 @@ export type SlMutationObserverSolidJsProps = {
   /** Disables the observer. */
   "prop:disabled"?: SlMutationObserver["disabled"];
   /** Emitted when a mutation occurs. */
-  "on:sl-mutation"?: (e: SlMutationObserverSlMutationEvent) => void;
+  "on:sl-mutation"?: (e: SlMutationObserverSlMutationElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2228,7 +2235,7 @@ multiple values. */
 };
 
 /** `SlPopup` component event */
-export type SlPopupEvent<E = Event> = TypedEvent<SlPopup, E>;
+export type SlPopupElementEvent<E = Event> = TypedEvent<SlPopup, E>;
 
 export type SlPopupProps = {
   /** The element the popup will be anchored to. If the anchor lives outside of the popup, you can provide the anchor
@@ -2331,7 +2338,7 @@ active. */
   popup?: SlPopup["popup"];
 
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
-  "onsl-reposition"?: (e: SlPopupEvent) => void;
+  "onsl-reposition"?: (e: SlPopupElementEvent) => void;
 };
 
 export type SlPopupSolidJsProps = {
@@ -2434,7 +2441,7 @@ active. */
   /** A reference to the internal popup container. Useful for animating and styling the popup with JavaScript. */
   "prop:popup"?: SlPopup["popup"];
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
-  "on:sl-reposition"?: (e: SlPopupEvent) => void;
+  "on:sl-reposition"?: (e: SlPopupElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2493,7 +2500,7 @@ export type SlProgressRingSolidJsProps = {
 };
 
 /** `SlRadio` component event */
-export type SlRadioEvent<E = Event> = TypedEvent<SlRadio, E>;
+export type SlRadioElementEvent<E = Event> = TypedEvent<SlRadio, E>;
 
 export type SlRadioProps = {
   /** The radio's value. When selected, the radio group will receive this value. */
@@ -2507,9 +2514,9 @@ attribute can typically be omitted. */
   checked?: SlRadio["checked"];
 
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlRadioEvent) => void;
+  "onsl-blur"?: (e: SlRadioElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlRadioEvent) => void;
+  "onsl-focus"?: (e: SlRadioElementEvent) => void;
 };
 
 export type SlRadioSolidJsProps = {
@@ -2523,9 +2530,9 @@ attribute can typically be omitted. */
   /**  */
   "prop:checked"?: SlRadio["checked"];
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlRadioEvent) => void;
+  "on:sl-blur"?: (e: SlRadioElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlRadioEvent) => void;
+  "on:sl-focus"?: (e: SlRadioElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2581,7 +2588,7 @@ export type SlQrCodeSolidJsProps = {
 };
 
 /** `SlRadioButton` component event */
-export type SlRadioButtonEvent<E = Event> = TypedEvent<SlRadioButton, E>;
+export type SlRadioButtonElementEvent<E = Event> = TypedEvent<SlRadioButton, E>;
 
 export type SlRadioButtonProps = {
   /** The radio's value. When selected, the radio group will receive this value. */
@@ -2599,9 +2606,9 @@ this attribute can typically be omitted. */
   hiddenInput?: SlRadioButton["hiddenInput"];
 
   /** Emitted when the button loses focus. */
-  "onsl-blur"?: (e: SlRadioButtonEvent) => void;
+  "onsl-blur"?: (e: SlRadioButtonElementEvent) => void;
   /** Emitted when the button gains focus. */
-  "onsl-focus"?: (e: SlRadioButtonEvent) => void;
+  "onsl-focus"?: (e: SlRadioButtonElementEvent) => void;
 };
 
 export type SlRadioButtonSolidJsProps = {
@@ -2619,9 +2626,9 @@ this attribute can typically be omitted. */
   /**  */
   "prop:hiddenInput"?: SlRadioButton["hiddenInput"];
   /** Emitted when the button loses focus. */
-  "on:sl-blur"?: (e: SlRadioButtonEvent) => void;
+  "on:sl-blur"?: (e: SlRadioButtonElementEvent) => void;
   /** Emitted when the button gains focus. */
-  "on:sl-focus"?: (e: SlRadioButtonEvent) => void;
+  "on:sl-focus"?: (e: SlRadioButtonElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2630,7 +2637,7 @@ this attribute can typically be omitted. */
 };
 
 /** `SlRadioGroup` component event */
-export type SlRadioGroupEvent<E = Event> = TypedEvent<SlRadioGroup, E>;
+export type SlRadioGroupElementEvent<E = Event> = TypedEvent<SlRadioGroup, E>;
 
 export type SlRadioGroupProps = {
   /** The radio group's label. Required for proper accessibility. If you need to display HTML, use the `label` slot
@@ -2660,11 +2667,11 @@ the same document or shadow root for this to work. */
   defaultValue?: SlRadioGroup["defaultValue"];
 
   /** Emitted when the radio group's selected value changes. */
-  "onsl-change"?: (e: SlRadioGroupEvent) => void;
+  "onsl-change"?: (e: SlRadioGroupElementEvent) => void;
   /** Emitted when the radio group receives user input. */
-  "onsl-input"?: (e: SlRadioGroupEvent) => void;
+  "onsl-input"?: (e: SlRadioGroupElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlRadioGroupEvent) => void;
+  "onsl-invalid"?: (e: SlRadioGroupElementEvent) => void;
 };
 
 export type SlRadioGroupSolidJsProps = {
@@ -2694,11 +2701,11 @@ the same document or shadow root for this to work. */
   /**  */
   "prop:defaultValue"?: SlRadioGroup["defaultValue"];
   /** Emitted when the radio group's selected value changes. */
-  "on:sl-change"?: (e: SlRadioGroupEvent) => void;
+  "on:sl-change"?: (e: SlRadioGroupElementEvent) => void;
   /** Emitted when the radio group receives user input. */
-  "on:sl-input"?: (e: SlRadioGroupEvent) => void;
+  "on:sl-input"?: (e: SlRadioGroupElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlRadioGroupEvent) => void;
+  "on:sl-invalid"?: (e: SlRadioGroupElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2707,7 +2714,7 @@ the same document or shadow root for this to work. */
 };
 
 /** `SlRange` component event */
-export type SlRangeEvent<E = Event> = TypedEvent<SlRange, E>;
+export type SlRangeElementEvent<E = Event> = TypedEvent<SlRange, E>;
 
 export type SlRangeProps = {
   /**  */
@@ -2747,15 +2754,15 @@ function should return a string to display in the tooltip. */
   defaultValue?: SlRange["defaultValue"];
 
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlRangeEvent) => void;
+  "onsl-blur"?: (e: SlRangeElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "onsl-change"?: (e: SlRangeEvent) => void;
+  "onsl-change"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlRangeEvent) => void;
+  "onsl-focus"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the control receives input. */
-  "onsl-input"?: (e: SlRangeEvent) => void;
+  "onsl-input"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlRangeEvent) => void;
+  "onsl-invalid"?: (e: SlRangeElementEvent) => void;
 };
 
 export type SlRangeSolidJsProps = {
@@ -2795,15 +2802,15 @@ function should return a string to display in the tooltip. */
   /** The default value of the form control. Primarily used for resetting the form control. */
   "prop:defaultValue"?: SlRange["defaultValue"];
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlRangeEvent) => void;
+  "on:sl-blur"?: (e: SlRangeElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "on:sl-change"?: (e: SlRangeEvent) => void;
+  "on:sl-change"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlRangeEvent) => void;
+  "on:sl-focus"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the control receives input. */
-  "on:sl-input"?: (e: SlRangeEvent) => void;
+  "on:sl-input"?: (e: SlRangeElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlRangeEvent) => void;
+  "on:sl-invalid"?: (e: SlRangeElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2812,9 +2819,9 @@ function should return a string to display in the tooltip. */
 };
 
 /** `SlRating` component event */
-export type SlRatingEvent<E = Event> = TypedEvent<SlRating, E>;
+export type SlRatingElementEvent<E = Event> = TypedEvent<SlRating, E>;
 /** `sl-hover` event type */
-export type SlRatingSlHoverEvent = SlRatingEvent<
+export type SlRatingSlHoverElementEvent = SlRatingElementEvent<
   CustomEvent<{ phase: "start" | "move" | "end"; value: number }>
 >;
 
@@ -2840,9 +2847,9 @@ well with `<sl-icon>` elements. */
   rating?: SlRating["rating"];
 
   /** Emitted when the rating's value changes. */
-  "onsl-change"?: (e: SlRatingEvent) => void;
+  "onsl-change"?: (e: SlRatingElementEvent) => void;
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
-  "onsl-hover"?: (e: SlRatingSlHoverEvent) => void;
+  "onsl-hover"?: (e: SlRatingSlHoverElementEvent) => void;
 };
 
 export type SlRatingSolidJsProps = {
@@ -2866,9 +2873,9 @@ well with `<sl-icon>` elements. */
   /**  */
   "prop:rating"?: SlRating["rating"];
   /** Emitted when the rating's value changes. */
-  "on:sl-change"?: (e: SlRatingEvent) => void;
+  "on:sl-change"?: (e: SlRatingElementEvent) => void;
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
-  "on:sl-hover"?: (e: SlRatingSlHoverEvent) => void;
+  "on:sl-hover"?: (e: SlRatingSlHoverElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2910,9 +2917,12 @@ a date to this format in JavaScript, use [`date.toISOString()`](https://develope
 };
 
 /** `SlResizeObserver` component event */
-export type SlResizeObserverEvent<E = Event> = TypedEvent<SlResizeObserver, E>;
+export type SlResizeObserverElementEvent<E = Event> = TypedEvent<
+  SlResizeObserver,
+  E
+>;
 /** `sl-resize` event type */
-export type SlResizeObserverSlResizeEvent = SlResizeObserverEvent<
+export type SlResizeObserverSlResizeElementEvent = SlResizeObserverElementEvent<
   CustomEvent<{ entries: ResizeObserverEntry[] }>
 >;
 
@@ -2921,14 +2931,14 @@ export type SlResizeObserverProps = {
   disabled?: SlResizeObserver["disabled"];
 
   /** Emitted when the element is resized. */
-  "onsl-resize"?: (e: SlResizeObserverSlResizeEvent) => void;
+  "onsl-resize"?: (e: SlResizeObserverSlResizeElementEvent) => void;
 };
 
 export type SlResizeObserverSolidJsProps = {
   /** Disables the observer. */
   "prop:disabled"?: SlResizeObserver["disabled"];
   /** Emitted when the element is resized. */
-  "on:sl-resize"?: (e: SlResizeObserverSlResizeEvent) => void;
+  "on:sl-resize"?: (e: SlResizeObserverSlResizeElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -2952,7 +2962,7 @@ export type SlSkeletonSolidJsProps = {
 };
 
 /** `SlSelect` component event */
-export type SlSelectEvent<E = Event> = TypedEvent<SlSelect, E>;
+export type SlSelectElementEvent<E = Event> = TypedEvent<SlSelect, E>;
 
 export type SlSelectProps = {
   /** The name of the select, submitted as a name/value pair with form data. */
@@ -3024,25 +3034,25 @@ the specified value. */
   selectedOptions?: SlSelect["selectedOptions"];
 
   /** Emitted when the control's value changes. */
-  "onsl-change"?: (e: SlSelectEvent) => void;
+  "onsl-change"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control's value is cleared. */
-  "onsl-clear"?: (e: SlSelectEvent) => void;
+  "onsl-clear"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control receives input. */
-  "onsl-input"?: (e: SlSelectEvent) => void;
+  "onsl-input"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlSelectEvent) => void;
+  "onsl-focus"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlSelectEvent) => void;
+  "onsl-blur"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the select's menu opens. */
-  "onsl-show"?: (e: SlSelectEvent) => void;
+  "onsl-show"?: (e: SlSelectElementEvent) => void;
   /** Emitted after the select's menu opens and all animations are complete. */
-  "onsl-after-show"?: (e: SlSelectEvent) => void;
+  "onsl-after-show"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the select's menu closes. */
-  "onsl-hide"?: (e: SlSelectEvent) => void;
+  "onsl-hide"?: (e: SlSelectElementEvent) => void;
   /** Emitted after the select's menu closes and all animations are complete. */
-  "onsl-after-hide"?: (e: SlSelectEvent) => void;
+  "onsl-after-hide"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlSelectEvent) => void;
+  "onsl-invalid"?: (e: SlSelectElementEvent) => void;
 };
 
 export type SlSelectSolidJsProps = {
@@ -3114,25 +3124,25 @@ the specified value. */
   /**  */
   "prop:selectedOptions"?: SlSelect["selectedOptions"];
   /** Emitted when the control's value changes. */
-  "on:sl-change"?: (e: SlSelectEvent) => void;
+  "on:sl-change"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control's value is cleared. */
-  "on:sl-clear"?: (e: SlSelectEvent) => void;
+  "on:sl-clear"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control receives input. */
-  "on:sl-input"?: (e: SlSelectEvent) => void;
+  "on:sl-input"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlSelectEvent) => void;
+  "on:sl-focus"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlSelectEvent) => void;
+  "on:sl-blur"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the select's menu opens. */
-  "on:sl-show"?: (e: SlSelectEvent) => void;
+  "on:sl-show"?: (e: SlSelectElementEvent) => void;
   /** Emitted after the select's menu opens and all animations are complete. */
-  "on:sl-after-show"?: (e: SlSelectEvent) => void;
+  "on:sl-after-show"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the select's menu closes. */
-  "on:sl-hide"?: (e: SlSelectEvent) => void;
+  "on:sl-hide"?: (e: SlSelectElementEvent) => void;
   /** Emitted after the select's menu closes and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlSelectEvent) => void;
+  "on:sl-after-hide"?: (e: SlSelectElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlSelectEvent) => void;
+  "on:sl-invalid"?: (e: SlSelectElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3150,7 +3160,7 @@ export type SlSpinnerSolidJsProps = {
 };
 
 /** `SlSwitch` component event */
-export type SlSwitchEvent<E = Event> = TypedEvent<SlSwitch, E>;
+export type SlSwitchElementEvent<E = Event> = TypedEvent<SlSwitch, E>;
 
 export type SlSwitchProps = {
   /**  */
@@ -3181,15 +3191,15 @@ the same document or shadow root for this to work. */
   defaultChecked?: SlSwitch["defaultChecked"];
 
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlSwitchEvent) => void;
+  "onsl-blur"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control's checked state changes. */
-  "onsl-change"?: (e: SlSwitchEvent) => void;
+  "onsl-change"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control receives input. */
-  "onsl-input"?: (e: SlSwitchEvent) => void;
+  "onsl-input"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlSwitchEvent) => void;
+  "onsl-focus"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlSwitchEvent) => void;
+  "onsl-invalid"?: (e: SlSwitchElementEvent) => void;
 };
 
 export type SlSwitchSolidJsProps = {
@@ -3220,15 +3230,15 @@ the same document or shadow root for this to work. */
   /** The default value of the form control. Primarily used for resetting the form control. */
   "prop:defaultChecked"?: SlSwitch["defaultChecked"];
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlSwitchEvent) => void;
+  "on:sl-blur"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control's checked state changes. */
-  "on:sl-change"?: (e: SlSwitchEvent) => void;
+  "on:sl-change"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control receives input. */
-  "on:sl-input"?: (e: SlSwitchEvent) => void;
+  "on:sl-input"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlSwitchEvent) => void;
+  "on:sl-focus"?: (e: SlSwitchElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlSwitchEvent) => void;
+  "on:sl-invalid"?: (e: SlSwitchElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3237,7 +3247,7 @@ the same document or shadow root for this to work. */
 };
 
 /** `SlSplitPanel` component event */
-export type SlSplitPanelEvent<E = Event> = TypedEvent<SlSplitPanel, E>;
+export type SlSplitPanelElementEvent<E = Event> = TypedEvent<SlSplitPanel, E>;
 
 export type SlSplitPanelProps = {
   /** The current position of the divider from the primary panel's edge as a percentage 0-100. Defaults to 50% of the
@@ -3266,7 +3276,7 @@ or a function which takes in a `SnapFunctionParams`, and returns a position to s
   divider?: SlSplitPanel["divider"];
 
   /** Emitted when the divider's position changes. */
-  "onsl-reposition"?: (e: SlSplitPanelEvent) => void;
+  "onsl-reposition"?: (e: SlSplitPanelElementEvent) => void;
 };
 
 export type SlSplitPanelSolidJsProps = {
@@ -3295,7 +3305,7 @@ or a function which takes in a `SnapFunctionParams`, and returns a position to s
   /**  */
   "prop:divider"?: SlSplitPanel["divider"];
   /** Emitted when the divider's position changes. */
-  "on:sl-reposition"?: (e: SlSplitPanelEvent) => void;
+  "on:sl-reposition"?: (e: SlSplitPanelElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3304,13 +3314,13 @@ or a function which takes in a `SnapFunctionParams`, and returns a position to s
 };
 
 /** `SlTabGroup` component event */
-export type SlTabGroupEvent<E = Event> = TypedEvent<SlTabGroup, E>;
+export type SlTabGroupElementEvent<E = Event> = TypedEvent<SlTabGroup, E>;
 /** `sl-tab-show` event type */
-export type SlTabGroupSlTabShowEvent = SlTabGroupEvent<
+export type SlTabGroupSlTabShowElementEvent = SlTabGroupElementEvent<
   CustomEvent<{ name: String }>
 >;
 /** `sl-tab-hide` event type */
-export type SlTabGroupSlTabHideEvent = SlTabGroupEvent<
+export type SlTabGroupSlTabHideElementEvent = SlTabGroupElementEvent<
   CustomEvent<{ name: String }>
 >;
 
@@ -3338,9 +3348,9 @@ manual, the tab will receive focus but will not show until the user presses spac
   indicator?: SlTabGroup["indicator"];
 
   /** Emitted when a tab is shown. */
-  "onsl-tab-show"?: (e: SlTabGroupSlTabShowEvent) => void;
+  "onsl-tab-show"?: (e: SlTabGroupSlTabShowElementEvent) => void;
   /** Emitted when a tab is hidden. */
-  "onsl-tab-hide"?: (e: SlTabGroupSlTabHideEvent) => void;
+  "onsl-tab-hide"?: (e: SlTabGroupSlTabHideElementEvent) => void;
 };
 
 export type SlTabGroupSolidJsProps = {
@@ -3366,9 +3376,9 @@ manual, the tab will receive focus but will not show until the user presses spac
   /**  */
   "prop:indicator"?: SlTabGroup["indicator"];
   /** Emitted when a tab is shown. */
-  "on:sl-tab-show"?: (e: SlTabGroupSlTabShowEvent) => void;
+  "on:sl-tab-show"?: (e: SlTabGroupSlTabShowElementEvent) => void;
   /** Emitted when a tab is hidden. */
-  "on:sl-tab-hide"?: (e: SlTabGroupSlTabHideEvent) => void;
+  "on:sl-tab-hide"?: (e: SlTabGroupSlTabHideElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3377,7 +3387,7 @@ manual, the tab will receive focus but will not show until the user presses spac
 };
 
 /** `SlTab` component event */
-export type SlTabEvent<E = Event> = TypedEvent<SlTab, E>;
+export type SlTabElementEvent<E = Event> = TypedEvent<SlTab, E>;
 
 export type SlTabProps = {
   /** The name of the tab panel this tab is associated with. The panel must be located in the same tab group. */
@@ -3392,7 +3402,7 @@ export type SlTabProps = {
   tab?: SlTab["tab"];
 
   /** Emitted when the tab is closable and the close button is activated. */
-  "onsl-close"?: (e: SlTabEvent) => void;
+  "onsl-close"?: (e: SlTabElementEvent) => void;
 };
 
 export type SlTabSolidJsProps = {
@@ -3407,7 +3417,7 @@ export type SlTabSolidJsProps = {
   /**  */
   "prop:tab"?: SlTab["tab"];
   /** Emitted when the tab is closable and the close button is activated. */
-  "on:sl-close"?: (e: SlTabEvent) => void;
+  "on:sl-close"?: (e: SlTabElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3435,7 +3445,7 @@ export type SlTabPanelSolidJsProps = {
 };
 
 /** `SlTextarea` component event */
-export type SlTextareaEvent<E = Event> = TypedEvent<SlTextarea, E>;
+export type SlTextareaElementEvent<E = Event> = TypedEvent<SlTextarea, E>;
 
 export type SlTextareaProps = {
   /**  */
@@ -3498,15 +3508,15 @@ keyboard on supportive devices. */
   defaultValue?: SlTextarea["defaultValue"];
 
   /** Emitted when the control loses focus. */
-  "onsl-blur"?: (e: SlTextareaEvent) => void;
+  "onsl-blur"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "onsl-change"?: (e: SlTextareaEvent) => void;
+  "onsl-change"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "onsl-focus"?: (e: SlTextareaEvent) => void;
+  "onsl-focus"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the control receives input. */
-  "onsl-input"?: (e: SlTextareaEvent) => void;
+  "onsl-input"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "onsl-invalid"?: (e: SlTextareaEvent) => void;
+  "onsl-invalid"?: (e: SlTextareaElementEvent) => void;
 };
 
 export type SlTextareaSolidJsProps = {
@@ -3569,15 +3579,15 @@ keyboard on supportive devices. */
   /** The default value of the form control. Primarily used for resetting the form control. */
   "prop:defaultValue"?: SlTextarea["defaultValue"];
   /** Emitted when the control loses focus. */
-  "on:sl-blur"?: (e: SlTextareaEvent) => void;
+  "on:sl-blur"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when an alteration to the control's value is committed by the user. */
-  "on:sl-change"?: (e: SlTextareaEvent) => void;
+  "on:sl-change"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the control gains focus. */
-  "on:sl-focus"?: (e: SlTextareaEvent) => void;
+  "on:sl-focus"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the control receives input. */
-  "on:sl-input"?: (e: SlTextareaEvent) => void;
+  "on:sl-input"?: (e: SlTextareaElementEvent) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  "on:sl-invalid"?: (e: SlTextareaEvent) => void;
+  "on:sl-invalid"?: (e: SlTextareaElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3586,7 +3596,7 @@ keyboard on supportive devices. */
 };
 
 /** `SlTag` component event */
-export type SlTagEvent<E = Event> = TypedEvent<SlTag, E>;
+export type SlTagElementEvent<E = Event> = TypedEvent<SlTag, E>;
 
 export type SlTagProps = {
   /** The tag's theme variant. */
@@ -3599,7 +3609,7 @@ export type SlTagProps = {
   removable?: SlTag["removable"];
 
   /** Emitted when the remove button is activated. */
-  "onsl-remove"?: (e: SlTagEvent) => void;
+  "onsl-remove"?: (e: SlTagElementEvent) => void;
 };
 
 export type SlTagSolidJsProps = {
@@ -3612,7 +3622,7 @@ export type SlTagSolidJsProps = {
   /** Makes the tag removable and shows a remove button. */
   "prop:removable"?: SlTag["removable"];
   /** Emitted when the remove button is activated. */
-  "on:sl-remove"?: (e: SlTagEvent) => void;
+  "on:sl-remove"?: (e: SlTagElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3621,7 +3631,7 @@ export type SlTagSolidJsProps = {
 };
 
 /** `SlTooltip` component event */
-export type SlTooltipEvent<E = Event> = TypedEvent<SlTooltip, E>;
+export type SlTooltipElementEvent<E = Event> = TypedEvent<SlTooltip, E>;
 
 export type SlTooltipProps = {
   /** The tooltip's content. If you need to display HTML, use the `content` slot instead. */
@@ -3653,13 +3663,13 @@ scenarios. */
   popup?: SlTooltip["popup"];
 
   /** Emitted when the tooltip begins to show. */
-  "onsl-show"?: (e: SlTooltipEvent) => void;
+  "onsl-show"?: (e: SlTooltipElementEvent) => void;
   /** Emitted after the tooltip has shown and all animations are complete. */
-  "onsl-after-show"?: (e: SlTooltipEvent) => void;
+  "onsl-after-show"?: (e: SlTooltipElementEvent) => void;
   /** Emitted when the tooltip begins to hide. */
-  "onsl-hide"?: (e: SlTooltipEvent) => void;
+  "onsl-hide"?: (e: SlTooltipElementEvent) => void;
   /** Emitted after the tooltip has hidden and all animations are complete. */
-  "onsl-after-hide"?: (e: SlTooltipEvent) => void;
+  "onsl-after-hide"?: (e: SlTooltipElementEvent) => void;
 };
 
 export type SlTooltipSolidJsProps = {
@@ -3691,13 +3701,13 @@ scenarios. */
   /**  */
   "prop:popup"?: SlTooltip["popup"];
   /** Emitted when the tooltip begins to show. */
-  "on:sl-show"?: (e: SlTooltipEvent) => void;
+  "on:sl-show"?: (e: SlTooltipElementEvent) => void;
   /** Emitted after the tooltip has shown and all animations are complete. */
-  "on:sl-after-show"?: (e: SlTooltipEvent) => void;
+  "on:sl-after-show"?: (e: SlTooltipElementEvent) => void;
   /** Emitted when the tooltip begins to hide. */
-  "on:sl-hide"?: (e: SlTooltipEvent) => void;
+  "on:sl-hide"?: (e: SlTooltipElementEvent) => void;
   /** Emitted after the tooltip has hidden and all animations are complete. */
-  "on:sl-after-hide"?: (e: SlTooltipEvent) => void;
+  "on:sl-after-hide"?: (e: SlTooltipElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3706,9 +3716,9 @@ scenarios. */
 };
 
 /** `SlTree` component event */
-export type SlTreeEvent<E = Event> = TypedEvent<SlTree, E>;
+export type SlTreeElementEvent<E = Event> = TypedEvent<SlTree, E>;
 /** `sl-selection-change` event type */
-export type SlTreeSlSelectionChangeEvent = SlTreeEvent<
+export type SlTreeSlSelectionChangeElementEvent = SlTreeElementEvent<
   CustomEvent<{ selection: SlTreeItem[] }>
 >;
 
@@ -3724,7 +3734,7 @@ displays checkboxes and allows more than one node to be selected. Leaf allows on
   collapsedIconSlot?: SlTree["collapsedIconSlot"];
 
   /** Emitted when a tree item is selected or deselected. */
-  "onsl-selection-change"?: (e: SlTreeSlSelectionChangeEvent) => void;
+  "onsl-selection-change"?: (e: SlTreeSlSelectionChangeElementEvent) => void;
 };
 
 export type SlTreeSolidJsProps = {
@@ -3738,7 +3748,7 @@ displays checkboxes and allows more than one node to be selected. Leaf allows on
   /**  */
   "prop:collapsedIconSlot"?: SlTree["collapsedIconSlot"];
   /** Emitted when a tree item is selected or deselected. */
-  "on:sl-selection-change"?: (e: SlTreeSlSelectionChangeEvent) => void;
+  "on:sl-selection-change"?: (e: SlTreeSlSelectionChangeElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
@@ -3747,7 +3757,7 @@ displays checkboxes and allows more than one node to be selected. Leaf allows on
 };
 
 /** `SlTreeItem` component event */
-export type SlTreeItemEvent<E = Event> = TypedEvent<SlTreeItem, E>;
+export type SlTreeItemElementEvent<E = Event> = TypedEvent<SlTreeItem, E>;
 
 export type SlTreeItemProps = {
   /** Expands the tree item. */
@@ -3778,17 +3788,17 @@ export type SlTreeItemProps = {
   expandButtonSlot?: SlTreeItem["expandButtonSlot"];
 
   /** Emitted when the tree item expands. */
-  "onsl-expand"?: (e: SlTreeItemEvent) => void;
+  "onsl-expand"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted after the tree item expands and all animations are complete. */
-  "onsl-after-expand"?: (e: SlTreeItemEvent) => void;
+  "onsl-after-expand"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when the tree item collapses. */
-  "onsl-collapse"?: (e: SlTreeItemEvent) => void;
+  "onsl-collapse"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted after the tree item collapses and all animations are complete. */
-  "onsl-after-collapse"?: (e: SlTreeItemEvent) => void;
+  "onsl-after-collapse"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when the tree item's lazy state changes. */
-  "onsl-lazy-change"?: (e: SlTreeItemEvent) => void;
+  "onsl-lazy-change"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree. */
-  "onsl-lazy-load"?: (e: SlTreeItemEvent) => void;
+  "onsl-lazy-load"?: (e: SlTreeItemElementEvent) => void;
 };
 
 export type SlTreeItemSolidJsProps = {
@@ -3819,17 +3829,17 @@ export type SlTreeItemSolidJsProps = {
   /**  */
   "prop:expandButtonSlot"?: SlTreeItem["expandButtonSlot"];
   /** Emitted when the tree item expands. */
-  "on:sl-expand"?: (e: SlTreeItemEvent) => void;
+  "on:sl-expand"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted after the tree item expands and all animations are complete. */
-  "on:sl-after-expand"?: (e: SlTreeItemEvent) => void;
+  "on:sl-after-expand"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when the tree item collapses. */
-  "on:sl-collapse"?: (e: SlTreeItemEvent) => void;
+  "on:sl-collapse"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted after the tree item collapses and all animations are complete. */
-  "on:sl-after-collapse"?: (e: SlTreeItemEvent) => void;
+  "on:sl-after-collapse"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when the tree item's lazy state changes. */
-  "on:sl-lazy-change"?: (e: SlTreeItemEvent) => void;
+  "on:sl-lazy-change"?: (e: SlTreeItemElementEvent) => void;
   /** Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree. */
-  "on:sl-lazy-load"?: (e: SlTreeItemEvent) => void;
+  "on:sl-lazy-load"?: (e: SlTreeItemElementEvent) => void;
 
   /** Set the innerHTML of the element */
   innerHTML?: string;
