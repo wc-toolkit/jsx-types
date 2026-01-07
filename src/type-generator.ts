@@ -441,7 +441,7 @@ function getEventTypeName(
   stronglyTyped?: boolean,
 ) {
   return stronglyTyped
-    ? (strongEventType ?? `${componentName}Event`)
+    ? (strongEventType ?? `${componentName}ElementEvent`)
     : eventType;
 }
 
@@ -470,7 +470,7 @@ function getStrongEventTypes(component: Component) {
         type: eventType.type.startsWith("{")
           ? `CustomEvent<${eventType.type}>`
           : eventType.type,
-        newType: `${component.name}${toPascalCase(eventType.name)}Event`,
+        newType: `${component.name}${toPascalCase(eventType.name)}ElementEvent`,
       };
     });
 }
@@ -483,13 +483,13 @@ function getStronglyTypedEvents(component: Component): string {
   const eventTypes = getStrongEventTypes(component);
   const types: string[] = [
     `/** \`${component.name}\` component event */
-     export type ${component.name}Event<E = Event> = TypedEvent<${component.name}, E>;`,
+     export type ${component.name}ElementEvent<E = Event> = TypedEvent<${component.name}, E>;`,
   ];
 
   eventTypes.forEach((eventType) => {
     types.push(
       `/** \`${eventType.name}\` event type */
-      export type ${eventType.newType} = ${component.name}Event<${eventType.type}>;`,
+      export type ${eventType.newType} = ${component.name}ElementEvent<${eventType.type}>;`,
     );
   });
 
