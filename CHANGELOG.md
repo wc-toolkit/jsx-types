@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.5.1
+
+### Patch Changes
+
+- 8e2508f: Updated strongly typed event names to include `Element` to prevent name collisions
+
 ## 1.5.0
 
 ### Minor Changes
