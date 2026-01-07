@@ -265,7 +265,7 @@ ${
     ?.filter((e) => e.name)
     ?.map((event) => {
       const eventType = event.type?.text?.startsWith("{")
-        ? `CustomElement<${event.type.text}>`
+        ? `CustomEvent<${event.type.text}>`
         : event.type?.text || "Event";
       solidTypes += `  /** ${getMemberDescription(
         event.description,
