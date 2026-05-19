@@ -109,7 +109,7 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
         module.exports?.forEach((e) => {
           const exportName = e.declaration.name;
 
-          if (!exportName || moduleNames.includes(exportName)) {
+          if (!exportName || exportName === "*" || moduleNames.includes(exportName)) {
             return;
           }
           moduleNames.push(exportName);
