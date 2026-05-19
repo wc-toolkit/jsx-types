@@ -21,6 +21,8 @@ export const GLOBAL_PROPS = `
   key?: string | number;
   /** Specifies the language of the element. */
   lang?: string;
+  /** Defines the element's semantic role for accessibility APIs. */
+  role?: string;
   /** Contains a space-separated list of the part names of the element. Part names allows CSS to select and style specific elements in a shadow tree via the ::part pseudo-element. */
   part?: string;
   /** Use the ref attribute with a variable to assign a DOM element to the variable once the element is rendered. */

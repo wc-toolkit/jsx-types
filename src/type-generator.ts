@@ -58,15 +58,14 @@ export function generateJsxTypes(
   if (mergedOptions.fileName) {
     createOutDir(mergedOptions.outdir!);
     saveFile(mergedOptions.outdir!, mergedOptions.fileName!, template);
+    log.green(
+      `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName)}".`,
+    );
   } else {
     log.yellow(
       `[jsx-types] - File generation skipped because \`fileName\` was not defined.`,
     );
   }
-
-  log.green(
-    `[jsx-types] - Generated "${path.join(mergedOptions.outdir!, mergedOptions.fileName!)}".`,
-  );
 
   return template;
 }
