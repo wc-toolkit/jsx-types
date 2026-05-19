@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.5.3
+
+### Patch Changes
+
+- b79f3ac: Fix generator creating invalid imports (like `import type { * }`) when using un-namespaced wildcard exports
+
 ## 1.5.2
 
 ### Patch Changes
