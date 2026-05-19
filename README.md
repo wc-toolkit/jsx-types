@@ -232,6 +232,29 @@ The `JsxTypesOptions` interface provides several configuration options to custom
 }
 ```
 
+#### `useCemTypes`
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Uses the property types extracted into the custom elements manifest instead of generating prop types from the imported component class. This is especially useful for JavaScript components whose typings come from JSDoc or other CEM plugins.
+
+```ts
+{
+  useCemTypes: true
+}
+```
+
+#### `typesSrc`
+- **Type:** `string`
+- **Default:** `"type"`
+- **Description:** Property name on the CEM member or attribute to read types from when `useCemTypes` is enabled. This is useful when another tool like the [@wc-toolkit/type-parser](https://www.npmjs.com/package/@wc-toolkit/type-parser) adds alternate type properties such as `parsedType`.
+
+```ts
+{
+  useCemTypes: true,
+  typesSrc: "parsedType"
+}
+```
+
 #### `excludeCssCustomProperties`
 - **Type:** `boolean`
 - **Default:** `false`
@@ -501,6 +524,8 @@ generateJsxTypes(manifest, {
   
   // Additional features
   allowUnknownProps: false,
+  useCemTypes: true,
+  typesSrc: "parsedType",
   excludeCssCustomProperties: false,
   
   // Development

@@ -4,8 +4,8 @@ import { JsxTypesOptions } from "./types";
 import {
   Component,
   getAllComponents,
-  getAttrsAndProps,
   getComponentDetailsTemplate,
+  getComponentPublicProperties,
   getMemberDescription,
   toPascalCase,
 } from "@wc-toolkit/cem-utilities";
@@ -71,9 +71,8 @@ export function generateJsxTypes(
 }
 
 function getImports(manifest: cem.Package, options: JsxTypesOptions) {
-  const importTemplates: string[] = [];
-  let modules: string[] = [];
-  const moduleNames: string[] = [];
+  const imports = new Map<string, Set<string>>();
+  const componentModules = new Map<string, { modulePath: string; tagName?: string }>();
 
   manifest.modules.forEach((module) => {
     if (
@@ -84,63 +83,102 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
       return;
     }
 
+    module.declarations?.forEach((element) => {
+      const component = element as cem.CustomElement;
+
+      if (!component.customElement || !component.name) {
+        return;
+      }
+
+      componentModules.set(component.name, {
+        modulePath: module.path,
+        tagName: component.tagName,
+      });
+    });
+
     if (options.globalTypePath) {
-      // If a global type path is provided, we import all components as a single import
-      modules = [
-        ...new Set([
-          ...modules,
-          ...(module.exports?.map((e) => e.declaration.name) || []),
-        ]),
-      ];
-    } else {
-      module.declarations?.forEach((element) => {
-        const component = element as cem.CustomElement;
-        const importPath =
-          typeof options.componentTypePath === "function"
-            ? options.componentTypePath?.(
-                component.name,
-                component.tagName,
-                module.path,
-              )
-            : module.path;
-        const uniqueExports: string[] = [];
+      module.exports?.forEach((exportDeclaration) => {
+        const exportName = exportDeclaration.declaration.name;
 
-        module.exports?.forEach((e) => {
-          const exportName = e.declaration.name;
-
-          if (!exportName || exportName === "*" || moduleNames.includes(exportName)) {
-            return;
-          }
-          moduleNames.push(exportName);
-          uniqueExports.push(exportName);
-        });
-
-        if (!uniqueExports?.length) {
+        if (!exportName || exportName === "*") {
           return;
         }
 
-        if (options.defaultExport) {
-          uniqueExports.push(`default as ${component.name}`);
+        addImport(imports, options.globalTypePath!, exportName);
+      });
+    } else {
+      module.declarations?.forEach((element) => {
+        const component = element as cem.CustomElement;
+
+        if (!component.customElement || !component.name) {
+          return;
         }
 
-        const exportList = options.defaultExport
-          ? uniqueExports
-              ?.filter((x) =>
-                options.defaultExport ? x !== component.name : false,
-              )
-              .join(", ")
-          : uniqueExports?.join(", ");
+        const importPath =
+          getComponentImportPath(component.name, component.tagName, module.path, options);
 
-        importTemplates.push(
-          `import type { ${exportList} } from "${importPath}";`,
-        );
+        module.exports?.forEach((exportDeclaration) => {
+          const exportName = exportDeclaration.declaration.name;
+
+          if (!exportName || exportName === "*") {
+            return;
+          }
+
+          if (!(options.defaultExport && exportName === component.name)) {
+            addImport(imports, importPath, exportName);
+          }
+        });
+
+        if (options.defaultExport) {
+          addImport(imports, importPath, `default as ${component.name}`);
+        }
       });
     }
   });
 
-  return options.globalTypePath
-    ? `import type { ${modules.join(", ")} } from "${options.globalTypePath}";`
-    : importTemplates.join("\n");
+  if (options.useCemTypes) {
+    getAllComponents(manifest, options.exclude).forEach((component) => {
+      if (!component.name) {
+        return;
+      }
+
+      const componentModule = componentModules.get(component.name);
+
+      if (!componentModule) {
+        return;
+      }
+
+      getComponentProps(component).forEach((prop) => {
+        const propType = getResolvedPropType(prop, options);
+
+        propType?.references?.forEach((reference) => {
+          if (!reference.name || reference.name === "default") {
+            return;
+          }
+
+          const importPath = getTypeImportPath(
+            reference,
+            componentModule.modulePath,
+            component,
+            options,
+          );
+
+          if (!importPath) {
+            return;
+          }
+
+          addImport(imports, importPath, reference.name);
+        });
+      });
+    });
+  }
+
+  return Array.from(imports.entries())
+    .map(
+      ([importPath, exportNames]) =>
+        `import type { ${Array.from(exportNames).join(", ")} } from "${importPath}";`,
+    )
+    .join("\n");
 }
 
 function getTypeTemplate(manifest: cem.Package, options: JsxTypesOptions) {
@@ -209,9 +247,8 @@ ${components
     }
 
     const cachedProps =
-      getAttrsAndProps(component)?.filter(
-        (prop) => !prop.readonly && !prop.static,
-      ) || [];
+      getComponentProps(component)?.filter((prop) => !prop.readonly && !prop.static) ||
+      [];
 
     const strongEventTypes = getStrongEventTypes(component);
 
@@ -228,9 +265,8 @@ ${(() => {
 
   return cachedProps.reduce((acc, prop) => {
     const description = getMemberDescription(prop.description, prop.deprecated);
-    const type = prop.propName
-      ? `${component.name}['${prop.propName}']`
-      : "unknown";
+    const typeInfo = getResolvedPropType(prop, options);
+    const type = getPropType(component.name, prop, typeInfo, options);
 
     // Check if we already have this property in the accumulator
     const propExists = acc.includes(`  "${prop.propName}"?:`);
@@ -245,7 +281,7 @@ ${(() => {
           "${prop.attrName}"?: ${type};\n`;
       }
       solidTypes += `  /** ${description} */
-        "${prop.type?.text.includes("boolean") ? "bool" : "attr"}:${prop.attrName}"?: ${type};\n`;
+        "${(typeInfo?.text || prop.type?.text || "").includes("boolean") ? "bool" : "attr"}:${prop.attrName}"?: ${type};\n`;
     }
 
     // Add property declaration if it doesn't exist yet
@@ -431,6 +467,160 @@ declare global {
   ${cssPropertiesTemplate}
 }
 `;
+}
+
+type ComponentProp = {
+  attrName?: string;
+  propName?: string;
+  description?: string;
+  deprecated?: boolean | string;
+  readonly?: boolean;
+  static?: boolean;
+  type?: cem.Type;
+  attribute?: cem.Attribute;
+  property?: cem.ClassField;
+};
+
+function addImport(
+  imports: Map<string, Set<string>>,
+  importPath: string,
+  exportName: string,
+) {
+  const existing = imports.get(importPath);
+
+  if (existing) {
+    existing.add(exportName);
+    return;
+  }
+
+  imports.set(importPath, new Set([exportName]));
+}
+
+function getComponentImportPath(
+  componentName: string,
+  tagName: string | undefined,
+  modulePath: string,
+  options: JsxTypesOptions,
+) {
+  return typeof options.componentTypePath === "function"
+    ? options.componentTypePath(componentName, tagName, modulePath)
+    : modulePath;
+}
+
+function getTypeImportPath(
+  reference: cem.TypeReference,
+  componentModulePath: string,
+  component: Component,
+  options: JsxTypesOptions,
+) {
+  if (reference.package) {
+    return reference.package;
+  }
+
+  if (!reference.module) {
+    return null;
+  }
+
+  if (reference.module === componentModulePath) {
+    if (options.globalTypePath) {
+      return options.globalTypePath;
+    }
+
+    if (component.name) {
+      return getComponentImportPath(
+        component.name,
+        component.tagName,
+        componentModulePath,
+        options,
+      );
+    }
+  }
+
+  return reference.module;
+}
+
+function getComponentProps(component: Component): ComponentProp[] {
+  const properties = getComponentPublicProperties(component) as cem.ClassField[];
+  const propertyMap = new Map(properties.map((property) => [property.name, property]));
+  const attributeProps =
+    component.attributes?.map((attribute) => ({
+      attrName: attribute.name,
+      propName: attribute.fieldName,
+      description: attribute.description,
+      deprecated: attribute.deprecated,
+      readonly: false,
+      static: false,
+      type: attribute.type,
+      attribute,
+      property: attribute.fieldName
+        ? propertyMap.get(attribute.fieldName)
+        : undefined,
+    })) || [];
+  const attributePropNames = new Set(
+    attributeProps
+      .map((attribute) => attribute.propName)
+      .filter((propName): propName is string => Boolean(propName)),
+  );
+  const propertyOnlyProps = properties
+    .filter((property) => !attributePropNames.has(property.name))
+    .map((property) => ({
+      attrName: undefined,
+      propName: property.name,
+      description: property.description,
+      deprecated: property.deprecated,
+      readonly: property.readonly,
+      static: property.static,
+      type: property.type,
+      attribute: undefined,
+      property,
+    }));
+
+  return [...attributeProps, ...propertyOnlyProps];
+}
+
+function getTypeFromSource(
+  source: cem.Attribute | cem.ClassField | undefined,
+  sourceKey: string,
+) {
+  const candidate = source
+    ? (source as unknown as Record<string, unknown>)[sourceKey]
+    : undefined;
+
+  if (
+    candidate &&
+    typeof candidate === "object" &&
+    "text" in candidate &&
+    typeof candidate.text === "string"
+  ) {
+    return candidate as cem.Type;
+  }
+
+  return undefined;
+}
+
+function getResolvedPropType(prop: ComponentProp, options: JsxTypesOptions) {
+  const sourceKey = options.typesSrc || "type";
+
+  return (
+    getTypeFromSource(prop.property, sourceKey) ??
+    getTypeFromSource(prop.attribute, sourceKey) ??
+    (sourceKey === "type" ? undefined : getTypeFromSource(prop.property, "type")) ??
+    (sourceKey === "type" ? undefined : getTypeFromSource(prop.attribute, "type")) ??
+    prop.type
+  );
+}
+
+function getPropType(
+  componentName: string,
+  prop: ComponentProp,
+  propType: cem.Type | undefined,
+  options: JsxTypesOptions,
+) {
+  if (options.useCemTypes) {
+    return propType?.text || "unknown";
+  }
+
+  return prop.propName ? `${componentName}['${prop.propName}']` : "unknown";
 }
 
 function getEventTypeName(

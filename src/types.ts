@@ -25,6 +25,10 @@ export type JsxTypesOptions = {
   globalEvents?: string;
   /** Adds types to allow users to add undefined attributes or props to the custom elements */
   allowUnknownProps?: boolean;
+  /** Use prop types extracted into the custom elements manifest instead of referencing the component class */
+  useCemTypes?: boolean;
+  /** Property name on the CEM member/attribute to read types from */
+  typesSrc?: string;
   /** Exclude types for CSS custom properties */
   excludeCssCustomProperties?: boolean;
   /** Optional function to format tag names before processing. */
