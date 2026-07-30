@@ -176,6 +176,41 @@ const parsedTypeManifest: ExtendedPackage = {
   ],
 };
 
+const eventDetailManifest = {
+  schemaVersion: "1.0.0",
+  readme: "",
+  modules: [
+    {
+      kind: "javascript-module",
+      path: "src/my-button.ts",
+      declarations: [
+        {
+          kind: "class",
+          name: "MyButton",
+          tagName: "my-button",
+          customElement: true,
+          events: [
+            {
+              name: "my-change",
+              type: { text: "CustomEvent<MyDetail>" },
+            },
+          ],
+        },
+      ],
+      exports: [
+        {
+          kind: "js",
+          name: "MyButton",
+          declaration: {
+            name: "MyButton",
+            module: "src/my-button.ts",
+          },
+        },
+      ],
+    },
+  ],
+} satisfies cem.Package;
+
 describe("generateJsxTypes", () => {
   it("includes the global role attribute in BaseProps", () => {
     const template = generateJsxTypes(manifest as cem.Package, {
@@ -229,5 +264,77 @@ describe("generateJsxTypes", () => {
     );
     expect(template).toContain('"variant"?: ButtonVariant | undefined;');
     expect(template).toContain('"size"?: ButtonSize;');
+  });
+
+  it("imports a named CustomEvent detail type alongside the component", () => {
+    const template = generateJsxTypes(eventDetailManifest, {
+      fileName: undefined,
+      stronglyTypedEvents: true,
+    });
+
+    expect(template).toMatch(
+      /import type \{ [^}]*MyButton[^}]*MyDetail[^}]*\} from "src\/my-button.ts"/,
+    );
+    expect(template).toContain(
+      "export type MyButtonMyChangeElementEvent = MyButtonElementEvent<CustomEvent<MyDetail>>;",
+    );
+  });
+
+  it("does not import a union CustomEvent detail type", () => {
+    const unionManifest = {
+      schemaVersion: "1.0.0",
+      readme: "",
+      modules: [
+        {
+          kind: "javascript-module",
+          path: "src/my-button.ts",
+          declarations: [
+            {
+              kind: "class",
+              name: "MyButton",
+              tagName: "my-button",
+              customElement: true,
+              events: [
+                {
+                  name: "my-change",
+                  type: { text: "CustomEvent<Foo | Bar>" },
+                },
+              ],
+            },
+          ],
+          exports: [
+            {
+              kind: "js",
+              name: "MyButton",
+              declaration: {
+                name: "MyButton",
+                module: "src/my-button.ts",
+              },
+            },
+          ],
+        },
+      ],
+    } satisfies cem.Package;
+
+    const template = generateJsxTypes(unionManifest, {
+      fileName: undefined,
+      stronglyTypedEvents: true,
+    });
+
+    expect(template).not.toMatch(/import [^}]*\|[^}]*\} from/);
+  });
+
+  it("imports event detail type even without strongly typed events", () => {
+    const template = generateJsxTypes(eventDetailManifest, {
+      fileName: undefined,
+      stronglyTypedEvents: false,
+    });
+
+    expect(template).toMatch(
+      /import type \{ [^}]*MyDetail[^}]*\} from "src\/my-button.ts"/,
+    );
+    expect(template).toContain(
+      '  "onmy-change"?: (e: CustomEvent<MyDetail>) => void;',
+    );
   });
 });
