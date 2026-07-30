@@ -173,6 +173,42 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
     });
   }
 
+  getAllComponents(manifest, options.exclude).forEach((component) => {
+    if (!component.name || !component.events?.length) {
+      return;
+    }
+
+    const componentModule = componentModules.get(component.name);
+    if (!componentModule) {
+      return;
+    }
+
+    const importPath = options.globalTypePath
+      ? options.globalTypePath
+      : getComponentImportPath(
+          component.name,
+          component.tagName,
+          componentModule.modulePath,
+          options,
+        );
+
+    component.events.forEach((event) => {
+      if (!event.type?.text) {
+        return;
+      }
+
+      const match = /^CustomEvent<(.+)>$/.exec(event.type.text);
+      if (!match) {
+        return;
+      }
+
+      const detail = match[1].trim();
+      if (/^[A-Z][\w$]*$/.test(detail)) {
+        addImport(imports, importPath, detail);
+      }
+    });
+  });
+
   return Array.from(imports.entries())
     .map(
       ([importPath, exportNames]) =>
