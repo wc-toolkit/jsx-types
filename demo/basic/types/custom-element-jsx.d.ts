@@ -117,6 +117,8 @@ type BaseProps<T extends HTMLElement> = {
   key?: string | number;
   /** Specifies the language of the element. */
   lang?: string;
+  /** Defines the element's semantic role for accessibility APIs. */
+  role?: string;
   /** Contains a space-separated list of the part names of the element. Part names allows CSS to select and style specific elements in a shadow tree via the ::part pseudo-element. */
   part?: string;
   /** Use the ref attribute with a variable to assign a DOM element to the variable once the element is rendered. */
@@ -10046,6 +10048,20 @@ export type CustomCssProperties = {
 };
 
 declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  export interface CSSProperties extends CustomCssProperties {}
+}
+
+declare module "react/jsx-runtime" {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  export interface CSSProperties extends CustomCssProperties {}
+}
+
+declare module "react/jsx-dev-runtime" {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
