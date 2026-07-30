@@ -418,6 +418,20 @@ declare module 'react' {
   ${cssPropertiesTemplate}
 }
 
+declare module 'react/jsx-runtime' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+declare module 'react/jsx-dev-runtime' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
 declare module 'preact' {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
