@@ -337,4 +337,38 @@ describe("generateJsxTypes", () => {
       '  "onmy-change"?: (e: CustomEvent<MyDetail>) => void;',
     );
   });
+
+  it("appends | undefined to optional props when exactOptionalPropertyTypes is enabled", () => {
+    const template = generateJsxTypes(jsDocManifest, {
+      fileName: undefined,
+      exactOptionalPropertyTypes: true,
+    });
+
+    expect(template).toContain(`"text"?: Button['text'] | undefined;`);
+    expect(template).toContain(`"variant"?: Button['variant'] | undefined;`);
+  });
+
+  it("does not append | undefined when exactOptionalPropertyTypes is disabled", () => {
+    const template = generateJsxTypes(jsDocManifest, {
+      fileName: undefined,
+      exactOptionalPropertyTypes: false,
+    });
+
+    expect(template).toContain(`"text"?: Button['text'];`);
+    expect(template).toContain(`"variant"?: Button['variant'];`);
+  });
+
+  it("does not duplicate | undefined when the CEM type already includes undefined", () => {
+    const template = generateJsxTypes(namedTypeManifest, {
+      fileName: undefined,
+      useCemTypes: true,
+      exactOptionalPropertyTypes: true,
+    });
+
+    expect(template).toContain('"variant"?: ButtonVariant | undefined;');
+    expect(template).not.toContain(
+      '"variant"?: ButtonVariant | undefined | undefined;',
+    );
+    expect(template).toContain('"size"?: ButtonSize | undefined;');
+  });
 });
