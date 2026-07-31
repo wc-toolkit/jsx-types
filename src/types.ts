@@ -31,6 +31,12 @@ export type JsxTypesOptions = {
   typesSrc?: string;
   /** Exclude types for CSS custom properties */
   excludeCssCustomProperties?: boolean;
+  /**
+   * Appends `| undefined` to every optional property type so the generated
+   * types are compatible with TypeScript's `exactOptionalPropertyTypes`
+   * compiler option.
+   */
+  exactOptionalPropertyTypes?: boolean;
   /** Optional function to format tag names before processing. */
   tagFormatter?: (tagName: string) => string;
   /** Available options for configuring the way the components description is rendered */

@@ -266,6 +266,17 @@ The `JsxTypesOptions` interface provides several configuration options to custom
 }
 ```
 
+#### `exactOptionalPropertyTypes`
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Appends `| undefined` to every optional property type (component props, SolidJS props, event handlers, CSS custom properties, and global props/events) so the generated types are compatible with TypeScript's [`exactOptionalPropertyTypes`](https://www.typescriptlang.org/tsconfig/#exactOptionalPropertyTypes) compiler option. Enable this when your consuming project turns on that flag — optional props will accept explicit `undefined` values in JSX. Types that already include `undefined` are not duplicated.
+
+```ts
+{
+  exactOptionalPropertyTypes: true
+}
+```
+
 #### `tagFormatter`
 - **Type:** `(tagName: string) => string`
 - **Description:** Optional function to format tag names before processing. Useful for adding prefixes, suffixes, or transforming tag names.
@@ -527,6 +538,7 @@ generateJsxTypes(manifest, {
   useCemTypes: true,
   typesSrc: "parsedType",
   excludeCssCustomProperties: false,
+  exactOptionalPropertyTypes: true,
   
   // Development
   debug: process.env.DEBUG === "true",

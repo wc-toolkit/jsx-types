@@ -20,7 +20,55 @@ const DEFAULT_OPTIONS: JsxTypesOptions = {
   exclude: [],
   prefix: "",
   suffix: "",
+  exactOptionalPropertyTypes: false,
 };
+
+/**
+ * Appends `| undefined` to a type expression when `exactOptionalPropertyTypes`
+ * is enabled, so JSX optional props accept explicit `undefined` values.
+ *
+ * - Function/arrow types are wrapped in parentheses to avoid changing the
+ *   precedence of `| undefined` (e.g. `((e: T) => void) | undefined`).
+ * - Types that already terminate in `undefined` are left untouched to avoid
+ *   producing `X | undefined | undefined`.
+ */
+function appendUndefined(type: string, enabled?: boolean): string {
+  if (!enabled) {
+    return type;
+  }
+
+  const trimmed = type.trim();
+
+  if (trimmed.includes("=>")) {
+    return `(${type}) | undefined`;
+  }
+
+  if (/\bundefined\s*$/.test(trimmed)) {
+    return type;
+  }
+
+  return `${type} | undefined`;
+}
+
+/**
+ * Applies {@link appendUndefined} to every optional property declaration line
+ * (`name?: Type;`) in a static template string such as `GLOBAL_PROPS`.
+ */
+function appendUndefinedToTemplate(template: string, enabled?: boolean): string {
+  if (!enabled) {
+    return template;
+  }
+
+  const propLine = /^(\s*(?:"[^"]+"|[a-zA-Z_$][\w$-]*)\?:\s*)(.+);\s*$/;
+
+  return template
+    .split("\n")
+    .map((line) => {
+      const match = propLine.exec(line);
+      return match ? `${match[1]}${appendUndefined(match[2], true)};` : line;
+    })
+    .join("\n");
+}
 
 /**
  * Generates TypeScript type definitions for custom elements to be used in JSX
@@ -268,12 +316,12 @@ ${
 }
 
 type BaseProps<T extends HTMLElement> = {
-${GLOBAL_PROPS}
+${appendUndefinedToTemplate(GLOBAL_PROPS, options.exactOptionalPropertyTypes)}
 } ${options.allowUnknownProps ? `& Record<string, any>` : ""};
 
 type BaseEvents = {
-${options.includeDefaultDOMEvents ? GLOBAL_EVENTS : ""}
-${Object.hasOwn(options, "globalEvents") ? options.globalEvents : ""}
+${appendUndefinedToTemplate(options.includeDefaultDOMEvents ? GLOBAL_EVENTS : "", options.exactOptionalPropertyTypes)}
+${appendUndefinedToTemplate(Object.hasOwn(options, "globalEvents") ? options.globalEvents ?? "" : "", options.exactOptionalPropertyTypes)}
 };
 
 ${components
@@ -303,6 +351,7 @@ ${(() => {
     const description = getMemberDescription(prop.description, prop.deprecated);
     const typeInfo = getResolvedPropType(prop, options);
     const type = getPropType(component.name, prop, typeInfo, options);
+    const undefinedType = appendUndefined(type, options.exactOptionalPropertyTypes);
 
     // Check if we already have this property in the accumulator
     const propExists = acc.includes(`  "${prop.propName}"?:`);
@@ -314,18 +363,18 @@ ${(() => {
     if (prop.attrName && prop.propName !== prop.attrName && !attrExists) {
       if(prop.propName !== prop.attrName) {
         result += `  /** ${description} */
-          "${prop.attrName}"?: ${type};\n`;
+          "${prop.attrName}"?: ${undefinedType};\n`;
       }
       solidTypes += `  /** ${description} */
-        "${(typeInfo?.text || prop.type?.text || "").includes("boolean") ? "bool" : "attr"}:${prop.attrName}"?: ${type};\n`;
+        "${(typeInfo?.text || prop.type?.text || "").includes("boolean") ? "bool" : "attr"}:${prop.attrName}"?: ${undefinedType};\n`;
     }
 
     // Add property declaration if it doesn't exist yet
     if (!propExists) {
       result += `  /** ${description} */
-        "${prop.propName}"?: ${type};\n`;
+        "${prop.propName}"?: ${undefinedType};\n`;
       solidTypes += `  /** ${description} */
-        "prop:${prop.propName}"?: ${type};\n`;
+        "prop:${prop.propName}"?: ${undefinedType};\n`;
     }
 
     return result;
@@ -338,26 +387,23 @@ ${
       const eventType = event.type?.text?.startsWith("{")
         ? `CustomEvent<${event.type.text}>`
         : event.type?.text || "Event";
+      const eventHandlerType = `(e: ${getEventTypeName(
+        eventType,
+        strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
+        component.name,
+        options.stronglyTypedEvents,
+      )}) => void`;
+      const undefinedHandlerType = appendUndefined(eventHandlerType, options.exactOptionalPropertyTypes);
       solidTypes += `  /** ${getMemberDescription(
         event.description,
         event.deprecated,
       )} */
-  "on:${event.name}"?: (e: ${getEventTypeName(
-    eventType,
-    strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
-    component.name,
-    options.stronglyTypedEvents,
-  )}) => void;\n`;
+  "on:${event.name}"?: ${undefinedHandlerType};\n`;
       return `  /** ${getMemberDescription(
         event.description,
         event.deprecated,
       )} */
-  "on${event.name}"?: (e: ${getEventTypeName(
-    eventType,
-    strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
-    component.name,
-    options.stronglyTypedEvents,
-  )}) => void;\n`;
+  "on${event.name}"?: ${undefinedHandlerType};\n`;
     })
     .join("") || ""
 }
@@ -366,9 +412,9 @@ ${
 export type ${component.name}SolidJsProps = {
 ${solidTypes}
   /** Set the innerHTML of the element */
-  innerHTML?: string;
+  innerHTML?: ${appendUndefined("string", options.exactOptionalPropertyTypes)};
   /** Set the textContent of the element */
-  textContent?: string | number;
+  textContent?: ${appendUndefined("string | number", options.exactOptionalPropertyTypes)};
 }`;
   })
   .join("\n")}
@@ -436,7 +482,7 @@ ${(() => {
         uniqueCssProperties.add(property.name);
         cssPropertiesArray.push(
           `  /** ${getMemberDescription(property.description, property.deprecated)} */
-  "${property.name}"?: string;`,
+  "${property.name}"?: ${appendUndefined("string", options.exactOptionalPropertyTypes)};`,
         );
       }
     });
