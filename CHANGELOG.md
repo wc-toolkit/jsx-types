@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.8.1
+
+### Patch Changes
+
+- ed001ec: Add a `cem-generator` plugin for generating JSX types from the finalized CEM.
+
 ## 1.8.0
 
 ### Minor Changes
