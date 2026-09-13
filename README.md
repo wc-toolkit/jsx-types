@@ -29,10 +29,11 @@ This includes types and documentation for:
 
 ## Usage
 
-This package includes two ways to generate the custom data config file:
+This package includes three ways to generate the custom data config file:
 
 1. programatically calling a function in your build pipeline
 2. as a plugin for the [Custom Element Manifest Analyzer](https://custom-elements-manifest.open-wc.org/)
+3. as a plugin for [`@wc-toolkit/cem-generator`](https://github.com/wc-toolkit/cem-generator)
 
 ### Install
 
@@ -74,6 +75,17 @@ export default {
     jsxTypesPlugin(options)
   ],
 };
+```
+
+### cem-generator Plugin
+
+```ts
+import { generateCem } from "@wc-toolkit/cem-generator";
+import { jsxTypesGeneratorPlugin } from "@wc-toolkit/jsx-types";
+
+generateCem({
+  plugins: [jsxTypesGeneratorPlugin({ outdir: "./types" })],
+});
 ```
 
 ## Implementation
