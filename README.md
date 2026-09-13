@@ -14,7 +14,7 @@ This allows developers to use your custom elements in their JSX projects with fu
 
 > **_NOTE:_** If you are using react 18 or below, check out our [react wrappers](https://wc-toolkit.com/integrations/react/).
 
-Types will be generated for all custom elements defined in your [Custom Elements Manifest](https://custom-elements-manifest.open-wc.org/). 
+Types will be generated for all custom elements defined in your [Custom Elements Manifest](https://custom-elements-manifest.open-wc.org/).
 
 This includes types and documentation for:
 
@@ -29,10 +29,11 @@ This includes types and documentation for:
 
 ## Usage
 
-This package includes two ways to generate the custom data config file:
+This package includes three ways to generate the custom data config file:
 
 1. programatically calling a function in your build pipeline
 2. as a plugin for the [Custom Element Manifest Analyzer](https://custom-elements-manifest.open-wc.org/)
+3. as a plugin for [`@wc-toolkit/cem-generator`](https://github.com/wc-toolkit/cem-generator)
 
 ### Install
 
@@ -76,6 +77,17 @@ export default {
 };
 ```
 
+### cem-generator Plugin
+
+```ts
+import { generateCem } from "@wc-toolkit/cem-generator";
+import { jsxTypesGeneratorPlugin } from "@wc-toolkit/jsx-types";
+
+generateCem({
+  plugins: [jsxTypesGeneratorPlugin({ outdir: "./types" })],
+});
+```
+
 ## Implementation
 
 In order for teams to take advantage of this, all they need to do is import the types in their project. There are two ways to configure the JSX types:
@@ -110,8 +122,6 @@ declare module "my-library" {
 
 > **_NOTE:_** Libraries will have their own module names you will need to use when extending the `IntrinsicElements` interface. For example, Preact requires you to use the `"preact"` module name instead of `"my-library"` (`declare module "preact"`) and StencilJS uses "@stencil/core" (`declare module "@stencil/core"`).
 
-
-
 ## Configuration Options
 
 The `JsxTypesOptions` interface provides several configuration options to customize how types are generated for your project:
@@ -119,131 +129,143 @@ The `JsxTypesOptions` interface provides several configuration options to custom
 ### Basic Options
 
 #### `fileName`
+
 - **Type:** `string`
 - **Default:** `"custom-element-jsx.d.ts"`
 - **Description:** The name of the generated type definition file.
 
 ```ts
 {
-  fileName: "my-components.d.ts"
+  fileName: "my-components.d.ts";
 }
 ```
 
 #### `outdir`
+
 - **Type:** `string`
 - **Default:** `"./"`
 - **Description:** The output directory where the generated types file will be saved.
 
 ```ts
 {
-  outdir: "./types"
+  outdir: "./types";
 }
 ```
 
 #### `exclude`
+
 - **Type:** `string[]`
 - **Default:** `[]`
 - **Description:** Array of component names to exclude from type generation.
 
 ```ts
 {
-  exclude: ["my-internal-component", "my-deprecated-component"]
+  exclude: ["my-internal-component", "my-deprecated-component"];
 }
 ```
 
 ### Import Configuration
 
 #### `componentTypePath`
+
 - **Type:** `(name: string, tag?: string, modulePath?: string) => string`
 - **Description:** A function that returns the import path for each component. This is useful when you need to customize the import statements in the generated types.
 
 ```ts
 {
-  componentTypePath: (name, tagName) => 
-    `my-lib/components/${tagName}/${tagName}.js`
+  componentTypePath: (name, tagName) =>
+    `my-lib/components/${tagName}/${tagName}.js`;
 }
 ```
 
 #### `globalTypePath`
+
 - **Type:** `string`
 - **Description:** When provided, generates a single import statement for all components from this path instead of individual imports. This is useful if your library has a barrel file that exports all components.
 
 ```ts
 {
-  globalTypePath: "my-lib"
+  globalTypePath: "my-lib";
 }
 ```
 
 #### `defaultExport`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Set to `true` if your component classes use default exports instead of named exports.
 
 ```ts
 {
-  defaultExport: true
+  defaultExport: true;
 }
 ```
 
 ### Event Configuration
 
 #### `stronglyTypedEvents`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** This feature is highly recommended for better type safety and autocomplete. Creates event types where the event's target is strongly typed to the custom element, providing better autocomplete and type safety for event handlers. When enabled, `e.detail` and `e.target` are strongly typed.
 
 ```ts
 {
-  stronglyTypedEvents: true
+  stronglyTypedEvents: true;
 }
 ```
 
 #### `includeDefaultDOMEvents`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Includes standard DOM events (e.g., `onClick`, `onHover`, etc.) in the generated types. The down side is that it can pollute the component API with attributes that aren't relevant to the component.
 
 ```ts
 {
-  includeDefaultDOMEvents: true
+  includeDefaultDOMEvents: true;
 }
 ```
 
 #### `globalEvents`
+
 - **Type:** `string`
 - **Description:** TypeScript type reference for global event props to add to all component types. This can be useful for adding custom events or event handlers to all components for things like custom telemetry.
 
 ```ts
 {
-  globalEvents: "React.DOMAttributes<HTMLElement>"
+  globalEvents: "React.DOMAttributes<HTMLElement>";
 }
 ```
 
 ### Additional Options
 
 #### `allowUnknownProps`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Allows users to add undefined attributes or props to the custom elements without TypeScript errors.
 
 ```ts
 {
-  allowUnknownProps: true
+  allowUnknownProps: true;
 }
 ```
 
 #### `useCemTypes`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Uses the property types extracted into the custom elements manifest instead of generating prop types from the imported component class. This is especially useful for JavaScript components whose typings come from JSDoc or other CEM plugins.
 
 ```ts
 {
-  useCemTypes: true
+  useCemTypes: true;
 }
 ```
 
 #### `typesSrc`
+
 - **Type:** `string`
 - **Default:** `"type"`
 - **Description:** Property name on the CEM member or attribute to read types from when `useCemTypes` is enabled. This is useful when another tool like the [@wc-toolkit/type-parser](https://www.npmjs.com/package/@wc-toolkit/type-parser) adds alternate type properties such as `parsedType`.
@@ -256,61 +278,68 @@ The `JsxTypesOptions` interface provides several configuration options to custom
 ```
 
 #### `excludeCssCustomProperties`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Excludes CSS custom property types from generation.
 
 ```ts
 {
-  excludeCssCustomProperties: true
+  excludeCssCustomProperties: true;
 }
 ```
 
 #### `tagFormatter`
+
 - **Type:** `(tagName: string) => string`
 - **Description:** Optional function to format tag names before processing. Useful for adding prefixes, suffixes, or transforming tag names.
 
 ```ts
 {
-  tagFormatter: (tagName) => tagName.replace("my-", "custom-")
+  tagFormatter: (tagName) => tagName.replace("my-", "custom-");
 }
 ```
 
 ### Utility Options
 
 #### `skip`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Skips the entire type generation process when set to `true`.
 
 ```ts
 {
-  skip: process.env.SKIP_TYPES === "true"
+  skip: process.env.SKIP_TYPES === "true";
 }
 ```
 
 #### `debug`
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** Enables debug logging to help troubleshoot type generation issues.
 
 ```ts
 {
-  debug: true
+  debug: true;
 }
 ```
 
 ### Deprecated Options
 
 #### `prefix` _(deprecated)_
+
 - **Type:** `string`
 - **Description:** Use `tagFormatter` instead. Adds a prefix to tag references.
 
 #### `suffix` _(deprecated)_
+
 - **Type:** `string`
 - **Description:** Use `tagFormatter` instead. Adds a suffix to tag references.
 
 #### `overrideCustomEventType` _(deprecated)_
+
 - **Type:** `boolean`
 - **Default:** `false`
 - **Description:** This feature never worked as intended and will be removed in the next major version.
@@ -327,7 +356,10 @@ If you are using a custom TypeScript declaration file, SolidJS has a custom type
 
 ```ts
 // custom-elements-types.d.ts
-import type { CustomElementsSolidJs, CustomCssProperties } from "path/to/jsx-types";
+import type {
+  CustomElementsSolidJs,
+  CustomCssProperties,
+} from "path/to/jsx-types";
 
 declare module "my-library" {
   namespace JSX {
@@ -363,9 +395,9 @@ This allows SolidJS to properly handle web component properties:
 SolidJS uses the `on:` prefix for custom events. The generated types include proper event handler types:
 
 ```tsx
-import { createSignal } from 'solid-js';
+import { createSignal } from "solid-js";
 
-const [value, setValue] = createSignal('');
+const [value, setValue] = createSignal("");
 
 <my-input
   prop:value={value()}
@@ -375,9 +407,9 @@ const [value, setValue] = createSignal('');
   }}
   on:my-change={(e) => {
     // e.detail is strongly typed when stronglyTypedEvents is enabled
-    console.log('Changed:', e.detail);
+    console.log("Changed:", e.detail);
   }}
-/>
+/>;
 ```
 
 #### Recommended Configuration for SolidJS
@@ -390,8 +422,8 @@ generateJsxTypes(manifest, {
   fileName: "custom-element-jsx.d.ts",
   defaultExport: true, // if your components use default exports
   stronglyTypedEvents: true, // for better event type safety
-  componentTypePath: (name, tagName) => 
-    `your-lib/components/${tagName}/${tagName}.js`
+  componentTypePath: (name, tagName) =>
+    `your-lib/components/${tagName}/${tagName}.js`,
 });
 ```
 
@@ -401,7 +433,10 @@ For SolidJS, create a declaration file that extends the `solid-js` JSX namespace
 
 ```ts
 // custom-elements-types.d.ts
-import type { CustomElements, CustomCssProperties } from "./path/to/types/custom-element-jsx";
+import type {
+  CustomElements,
+  CustomCssProperties,
+} from "./path/to/types/custom-element-jsx";
 
 declare module "solid-js" {
   namespace JSX {
@@ -443,7 +478,7 @@ const [items, setItems] = createSignal([]);
 Access custom element methods using SolidJS refs:
 
 ```tsx
-import { onMount } from 'solid-js';
+import { onMount } from "solid-js";
 
 let dialogRef: any;
 
@@ -452,9 +487,7 @@ onMount(() => {
   dialogRef?.show();
 });
 
-<my-dialog ref={dialogRef}>
-  Dialog content
-</my-dialog>
+<my-dialog ref={dialogRef}>Dialog content</my-dialog>;
 ```
 
 ### React
@@ -505,29 +538,29 @@ generateJsxTypes(manifest, {
   // Output configuration
   fileName: "custom-element-jsx.d.ts",
   outdir: "./types",
-  
+
   // Component filtering
   exclude: ["internal-component"],
-  
+
   // Import configuration
   componentTypePath: (name, tagName, modulePath) => {
     return `my-library/components/${tagName}/${tagName}.js`;
   },
   defaultExport: true,
-  
+
   // Event configuration
   stronglyTypedEvents: true,
   includeDefaultDOMEvents: true,
-  
+
   // Tag formatting
   tagFormatter: (tagName) => tagName.toLowerCase(),
-  
+
   // Additional features
   allowUnknownProps: false,
   useCemTypes: true,
   typesSrc: "parsedType",
   excludeCssCustomProperties: false,
-  
+
   // Development
   debug: process.env.DEBUG === "true",
   skip: false,

@@ -65,6 +65,7 @@
     "vitest": "^3.0.4"
   },
   "dependencies": {
+    "@wc-toolkit/cem-generator": "^0.1.1",
     "@prettier/sync": "^0.6.1"
   },
   "keywords": [
