@@ -6,9 +6,9 @@ import type { Package } from "custom-elements-manifest";
 
 /**
  * Plugin to generate JSX types for web components based on a custom elements manifest.
- * 
+ *
  * @param options - Configuration options for the JSX types plugin
- * @returns 
+ * @returns
  */
 export function jsxTypesPlugin(options: JsxTypesOptions = {}) {
   return {
