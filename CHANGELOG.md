@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.8.2
+
+### Patch Changes
+
+- 7c03f08: Keep JSX type generation from mutating the source Custom Elements Manifest.
+
 ## 1.8.1
 
 ### Patch Changes
