@@ -14,7 +14,7 @@ export function jsxTypesPlugin(options: JsxTypesOptions = {}) {
   return {
     name: "@wc-toolkit/jsx-types",
     packageLinkPhase({ customElementsManifest }: any) {
-      generateJsxTypes(customElementsManifest, options);
+      generateJsxTypes(cloneManifest(customElementsManifest), options);
     },
   };
 }
@@ -24,7 +24,11 @@ export function jsxTypesGeneratorPlugin(options: JsxTypesOptions = {}): Plugin {
   return {
     name: "@wc-toolkit/jsx-types:cem-generator",
     afterGenerate(manifest: Package) {
-      generateJsxTypes(manifest, options);
+      generateJsxTypes(cloneManifest(manifest), options);
     },
   };
+}
+
+function cloneManifest(manifest: unknown): Package {
+  return structuredClone(manifest) as Package;
 }
