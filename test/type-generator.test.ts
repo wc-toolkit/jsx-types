@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type * as cem from "custom-elements-manifest";
+import ts from "typescript";
 import manifest from "../demo/basic/custom-elements.json";
 import { generateJsxTypes } from "../src/type-generator";
 
@@ -211,6 +212,34 @@ const eventDetailManifest = {
   ],
 } satisfies cem.Package;
 
+const cssOnlyManifest = {
+  schemaVersion: "1.0.0",
+  readme: "",
+  modules: [
+    {
+      kind: "javascript-module",
+      path: "src/my-badge.css",
+      declarations: [
+        {
+          kind: "class",
+          name: "my-badge",
+          tagName: "my-badge",
+          customElement: true,
+          superclass: { name: "HTMLUnknownElement" },
+          attributes: [
+            {
+              name: "label",
+              type: { text: "string" },
+            },
+          ],
+          cssProperties: [{ name: "--badge-color" }],
+          slots: [{ name: "" }],
+        },
+      ],
+    },
+  ],
+} satisfies cem.Package;
+
 describe("generateJsxTypes", () => {
   it("includes the global role attribute in BaseProps", () => {
     const template = generateJsxTypes(manifest as cem.Package, {
@@ -282,6 +311,29 @@ describe("generateJsxTypes", () => {
     expect(template).toContain(
       "export type MyButtonMyChangeElementEvent = MyButtonElementEvent<CustomEvent<MyDetail>>;",
     );
+  });
+
+  it("generates valid types for CSS-only declarations", () => {
+    const template = generateJsxTypes(cssOnlyManifest, {
+      fileName: undefined,
+    });
+
+    const sourceFile = ts.createSourceFile(
+      "generated.d.ts",
+      template!,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(sourceFile.parseDiagnostics).toHaveLength(0);
+    expect(template).toContain("export type MyBadgeProps = {");
+    expect(template).toContain('"label"?: string | undefined;');
+    expect(template).toContain(
+      '"my-badge": Partial<MyBadgeProps & BaseProps<HTMLUnknownElement>',
+    );
+    expect(template).toContain('"--badge-color"?: string | undefined;');
+    expect(template).not.toContain('from "src/my-badge.css"');
   });
 
   it("does not import a union CustomEvent detail type", () => {

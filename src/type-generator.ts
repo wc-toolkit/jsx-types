@@ -204,8 +204,16 @@ function getImports(manifest: cem.Package, options: JsxTypesOptions) {
           return;
         }
 
-        const importPath =
-          getComponentImportPath(component.name, component.tagName, module.path, options);
+        if (isCssOnlyComponent(component)) {
+          return;
+        }
+
+        const importPath = getComponentImportPath(
+          component.name,
+          component.tagName,
+          module.path,
+          options,
+        );
 
         module.exports?.forEach((exportDeclaration) => {
           const exportName = exportDeclaration.declaration.name;
@@ -372,8 +380,10 @@ ${components
       return "";
     }
 
+    const cssOnly = isCssOnlyComponent(component);
+    const componentName = getGeneratedComponentName(component);
     const cachedProps =
-      getComponentProps(component)?.filter((prop) => !prop.readonly && !prop.static) ||
+      getComponentProps(component, cssOnly)?.filter((prop) => !prop.readonly && !prop.static) ||
       [];
 
     const strongEventTypes = getStrongEventTypes(component);
@@ -383,7 +393,7 @@ ${components
     return `
 ${options.stronglyTypedEvents ? getStronglyTypedEvents(component) : ""}
 
-export type ${component.name}Props = {
+export type ${componentName}Props = {
 ${(() => {
   if (!cachedProps?.length) {
     return "";
@@ -392,7 +402,7 @@ ${(() => {
   return cachedProps.reduce((acc, prop) => {
     const description = getMemberDescription(prop.description, prop.deprecated);
     const typeInfo = getResolvedPropType(prop, options);
-    const type = getPropType(component.name, prop, typeInfo, options);
+    const type = getPropType(componentName, prop, typeInfo, options, cssOnly);
     const undefinedType = appendUndefined(type);
 
     // Check if we already have this property in the accumulator
@@ -432,7 +442,7 @@ ${
       const eventHandlerType = `(e: ${getEventTypeName(
         eventType,
         strongEventTypes?.find((x) => x.name === event.name)?.newType || null,
-        component.name,
+        componentName,
         options.stronglyTypedEvents,
       )}) => void`;
       const undefinedHandlerType = appendUndefined(eventHandlerType);
@@ -451,7 +461,7 @@ ${
 }
 }
 
-export type ${component.name}SolidJsProps = {
+export type ${componentName}SolidJsProps = {
 ${solidTypes}
   /** Set the innerHTML of the element */
   innerHTML?: ${appendUndefined("string")};
@@ -468,6 +478,8 @@ ${components
       return "";
     }
 
+    const cssOnly = isCssOnlyComponent(component);
+    const componentName = getGeneratedComponentName(component);
     let tagName = component.tagName;
     if (options.tagFormatter) {
       tagName = options.tagFormatter(component.tagName);
@@ -481,8 +493,8 @@ ${components
     ${getComponentDetailsTemplate(component, options.componentDescriptionOptions, true)}
   */
     "${tagName}": Partial<${
-      component.name
-    }Props & BaseProps<${component.name}> & BaseEvents>;`;
+      componentName
+    }Props & BaseProps<${cssOnly ? "HTMLUnknownElement" : componentName}> & BaseEvents>;`;
   })
   .join("\n")}
   }
@@ -494,6 +506,8 @@ ${components
       return "";
     }
 
+    const cssOnly = isCssOnlyComponent(component);
+    const componentName = getGeneratedComponentName(component);
     let tagName = component.tagName;
     if (options.tagFormatter) {
       tagName = options.tagFormatter(component.tagName);
@@ -506,9 +520,9 @@ ${components
   /**
     ${getComponentDetailsTemplate(component, options.componentDescriptionOptions, true)}
   */
-    "${tagName}": Partial<${component.name}Props & ${
-      component.name
-    }SolidJsProps & BaseProps<${component.name}> & BaseEvents>;`;
+    "${tagName}": Partial<${componentName}Props & ${
+      componentName
+    }SolidJsProps & BaseProps<${cssOnly ? "HTMLUnknownElement" : componentName}> & BaseEvents>;`;
   })
   .join("\n")}
   }
@@ -677,13 +691,28 @@ function getTypeImportPath(
   return reference.module;
 }
 
-function getComponentProps(component: Component): ComponentProp[] {
+function isCssOnlyComponent(component: { superclass?: cem.Reference }) {
+  return component.superclass?.name === "HTMLUnknownElement";
+}
+
+function getGeneratedComponentName(component: Component) {
+  return isCssOnlyComponent(component)
+    ? toPascalCase(component.tagName || component.name)
+    : component.name;
+}
+
+function getComponentProps(
+  component: Component,
+  cssOnly = isCssOnlyComponent(component),
+): ComponentProp[] {
   const properties = getComponentPublicProperties(component) as cem.ClassField[];
   const propertyMap = new Map(properties.map((property) => [property.name, property]));
   const attributeProps =
     component.attributes?.map((attribute) => ({
       attrName: attribute.name,
-      propName: attribute.fieldName,
+      propName: cssOnly
+        ? attribute.fieldName || attribute.name
+        : attribute.fieldName,
       description: attribute.description,
       deprecated: attribute.deprecated,
       readonly: false,
@@ -753,8 +782,9 @@ function getPropType(
   prop: ComponentProp,
   propType: cem.Type | undefined,
   options: JsxTypesOptions,
+  cssOnly = false,
 ) {
-  if (options.useCemTypes) {
+  if (options.useCemTypes || cssOnly) {
     return propType?.text || "unknown";
   }
 
@@ -797,7 +827,7 @@ function getStrongEventTypes(component: Component) {
         type: eventType.type.startsWith("{")
           ? `CustomEvent<${eventType.type}>`
           : eventType.type,
-        newType: `${component.name}${toPascalCase(eventType.name)}ElementEvent`,
+        newType: `${getGeneratedComponentName(component)}${toPascalCase(eventType.name)}ElementEvent`,
       };
     });
 }
@@ -809,14 +839,14 @@ function getStronglyTypedEvents(component: Component): string {
 
   const eventTypes = getStrongEventTypes(component);
   const types: string[] = [
-    `/** \`${component.name}\` component event */
-     export type ${component.name}ElementEvent<E = Event> = TypedEvent<${component.name}, E>;`,
+    `/** \`${getGeneratedComponentName(component)}\` component event */
+     export type ${getGeneratedComponentName(component)}ElementEvent<E = Event> = TypedEvent<${getGeneratedComponentName(component)}, E>;`,
   ];
 
   eventTypes.forEach((eventType) => {
     types.push(
       `/** \`${eventType.name}\` event type */
-      export type ${eventType.newType} = ${component.name}ElementEvent<${eventType.type}>;`,
+       export type ${eventType.newType} = ${getGeneratedComponentName(component)}ElementEvent<${eventType.type}>;`,
     );
   });
 
