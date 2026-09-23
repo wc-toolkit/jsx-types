@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.8.3
+
+### Patch Changes
+
+- 88b9720: Support generating valid JSX types from CSS-only custom element declarations in a Custom Elements Manifest.
+
 ## 1.8.2
 
 ### Patch Changes
