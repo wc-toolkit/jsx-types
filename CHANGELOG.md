@@ -1,5 +1,11 @@
 # @wc-toolkit/jsx-types
 
+## 1.8.4
+
+### Patch Changes
+
+- 01fb926: Avoid mutating input manifests, resolve file-like imports relative to the output directory, deduplicate event detail imports, and generate valid CSS-only JSX props.
+
 ## 1.8.3
 
 ### Patch Changes
