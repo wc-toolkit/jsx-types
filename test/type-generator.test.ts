@@ -222,18 +222,38 @@ const cssOnlyManifest = {
       declarations: [
         {
           kind: "class",
-          name: "my-badge",
-          tagName: "my-badge",
+          name: "Layout",
+          tagName: "zd-flex",
           customElement: true,
-          superclass: { name: "HTMLUnknownElement" },
           attributes: [
             {
               name: "label",
-              type: { text: "string" },
+              type: { text: "row | column" },
             },
           ],
           cssProperties: [{ name: "--badge-color" }],
           slots: [{ name: "" }],
+        },
+      ],
+      exports: [],
+    },
+    {
+      kind: "javascript-module",
+      path: "src/button.ts",
+      declarations: [
+        {
+          kind: "class",
+          name: "Button",
+          tagName: "x-button",
+          customElement: true,
+          members: [{ kind: "field", name: "label", type: { text: "string" } }],
+        },
+      ],
+      exports: [
+        {
+          kind: "js",
+          name: "Button",
+          declaration: { name: "Button", module: "src/button.ts" },
         },
       ],
     },
@@ -241,12 +261,22 @@ const cssOnlyManifest = {
 } satisfies cem.Package;
 
 describe("generateJsxTypes", () => {
+  it("does not mutate a manifest reused for sequential generation", () => {
+    const input = structuredClone(jsDocManifest);
+    const before = structuredClone(input);
+    const first = generateJsxTypes(input, { fileName: undefined });
+    const second = generateJsxTypes(input, { fileName: undefined });
+
+    expect(input).toEqual(before);
+    expect(second).toBe(first);
+  });
+
   it("includes the global role attribute in BaseProps", () => {
     const template = generateJsxTypes(manifest as cem.Package, {
       fileName: undefined,
     });
 
-    expect(template).toContain('role?: string | undefined;');
+    expect(template).toContain("role?: string | undefined;");
   });
 
   it("keeps component property references by default", () => {
@@ -286,14 +316,15 @@ describe("generateJsxTypes", () => {
   it("imports named CEM type references when useCemTypes is enabled", () => {
     const template = generateJsxTypes(namedTypeManifest, {
       fileName: undefined,
+      outdir: "./types",
       useCemTypes: true,
     });
 
     expect(template).toContain(
-      'import type { Button, ButtonVariant } from "src/button.js";',
+      'import type { Button, ButtonVariant } from "../src/button.js";',
     );
     expect(template).toContain(
-      'import type { ButtonSize } from "src/button-types.js";',
+      'import type { ButtonSize } from "../src/button-types.js";',
     );
     expect(template).toContain('"variant"?: ButtonVariant | undefined;');
     expect(template).toContain('"size"?: ButtonSize | undefined;');
@@ -302,11 +333,12 @@ describe("generateJsxTypes", () => {
   it("imports a named CustomEvent detail type alongside the component", () => {
     const template = generateJsxTypes(eventDetailManifest, {
       fileName: undefined,
+      outdir: "./types",
       stronglyTypedEvents: true,
     });
 
     expect(template).toMatch(
-      /import type \{ [^}]*MyButton[^}]*MyDetail[^}]*\} from "src\/my-button.ts"/,
+      /import type \{ [^}]*MyButton[^}]*MyDetail[^}]*\} from "\.\.\/src\/my-button.ts"/,
     );
     expect(template).toContain(
       "export type MyButtonMyChangeElementEvent = MyButtonElementEvent<CustomEvent<MyDetail>>;",
@@ -327,13 +359,139 @@ describe("generateJsxTypes", () => {
     );
 
     expect(sourceFile.parseDiagnostics).toHaveLength(0);
-    expect(template).toContain("export type MyBadgeProps = {");
-    expect(template).toContain('"label"?: string | undefined;');
+    expect(template).toContain("export type ZdFlexProps = {");
+    expect(template).toContain('"label"?: "row" | "column" | undefined;');
     expect(template).toContain(
-      '"my-badge": Partial<MyBadgeProps & BaseProps<HTMLUnknownElement>',
+      '"zd-flex": Partial<ZdFlexProps & BaseProps<HTMLElement>',
     );
     expect(template).toContain('"--badge-color"?: string | undefined;');
     expect(template).not.toContain('from "src/my-badge.css"');
+    expect(template).toContain(
+      '"x-button": Partial<ButtonProps & BaseProps<Button>',
+    );
+  });
+
+  it("respects exclude for CSS-only declarations", () => {
+    const template = generateJsxTypes(cssOnlyManifest, {
+      fileName: undefined,
+      exclude: ["Layout"],
+    });
+
+    expect(template).not.toContain('"zd-flex"');
+    expect(template).toContain('"x-button"');
+  });
+
+  it("keeps JSX attributes without backing fields and omits a missing property name", () => {
+    const manifest = {
+      schemaVersion: "1.0.0",
+      readme: "",
+      modules: [
+        {
+          kind: "javascript-module" as const,
+          path: "src/orphan.ts",
+          declarations: [
+            {
+              kind: "class" as const,
+              name: "Orphan",
+              tagName: "x-orphan",
+              customElement: true,
+              attributes: [
+                { name: "orphaned", type: { text: "string" } },
+                { name: "enabled", type: { text: "boolean" } },
+              ],
+            },
+          ],
+          exports: [
+            {
+              kind: "js" as const,
+              name: "Orphan",
+              declaration: { name: "Orphan", module: "src/orphan.ts" },
+            },
+          ],
+        },
+      ],
+    } satisfies cem.Package;
+
+    const template = generateJsxTypes(manifest, { fileName: undefined });
+    expect(template).toContain('"orphaned"?: unknown | undefined;');
+    expect(template).toContain('"attr:orphaned"?: unknown | undefined;');
+    expect(template).toContain('"bool:enabled"?: unknown | undefined;');
+    expect(template).not.toContain('"undefined"?:');
+  });
+
+  it("imports a shared event detail type only once across component modules", () => {
+    const manifest = {
+      schemaVersion: "1.0.0",
+      readme: "",
+      modules: ["first", "second"].map((name) => ({
+        kind: "javascript-module" as const,
+        path: `src/${name}.ts`,
+        declarations: [
+          {
+            kind: "class" as const,
+            name: name === "first" ? "First" : "Second",
+            tagName: `x-${name}`,
+            customElement: true,
+            events: [
+              { name: "error", type: { text: "CustomEvent<ErrorDetail>" } },
+            ],
+          },
+        ],
+        exports: [
+          {
+            kind: "js" as const,
+            name: name === "first" ? "First" : "Second",
+            declaration: {
+              name: name === "first" ? "First" : "Second",
+              module: `src/${name}.ts`,
+            },
+          },
+          {
+            kind: "js" as const,
+            name: "ErrorDetail",
+            declaration: {
+              name: "ErrorDetail",
+              module: `src/${name}.ts`,
+            },
+          },
+        ],
+      })),
+    } satisfies cem.Package;
+
+    const template = generateJsxTypes(manifest, { fileName: undefined });
+    const imports = template
+      ?.split("\n")
+      .filter(
+        (line) =>
+          line.startsWith("import type") && line.includes("ErrorDetail"),
+      );
+    expect(imports).toHaveLength(1);
+  });
+
+  it("does not import a generic CustomEvent detail", () => {
+    const genericManifest = {
+      ...eventDetailManifest,
+      modules: eventDetailManifest.modules.map((module) => ({
+        ...module,
+        declarations: module.declarations?.map((declaration) => ({
+          ...declaration,
+          events: [
+            {
+              name: "generic",
+              type: { text: "CustomEvent<Record<string, never>>" },
+            },
+          ],
+        })),
+      })),
+    } satisfies cem.Package;
+    const template = generateJsxTypes(genericManifest, { fileName: undefined });
+    expect(
+      template
+        ?.split("\n")
+        .some(
+          (line) => line.startsWith("import type") && line.includes("Record"),
+        ),
+    ).toBe(false);
   });
 
   it("does not import a union CustomEvent detail type", () => {
@@ -383,11 +541,12 @@ describe("generateJsxTypes", () => {
   it("imports event detail type even without strongly typed events", () => {
     const template = generateJsxTypes(eventDetailManifest, {
       fileName: undefined,
+      outdir: "./types",
       stronglyTypedEvents: false,
     });
 
     expect(template).toMatch(
-      /import type \{ [^}]*MyDetail[^}]*\} from "src\/my-button.ts"/,
+      /import type \{ [^}]*MyDetail[^}]*\} from "\.\.\/src\/my-button.ts"/,
     );
     expect(template).toContain(
       '  "onmy-change"?: ((e: CustomEvent<MyDetail>) => void) | undefined;',
@@ -527,10 +686,8 @@ describe("generateJsxTypes", () => {
     expect(template).toContain("class?: string | undefined;");
     expect(template).toContain("id?: string | undefined;");
     expect(template).toContain("role?: string | undefined;");
-    expect(template).toContain(
-      "ref?: (T | ((e: T) => void)) | undefined;",
-    );
-    expect(template).toContain("dir?: \"ltr\" | \"rtl\" | undefined;");
+    expect(template).toContain("ref?: (T | ((e: T) => void)) | undefined;");
+    expect(template).toContain('dir?: "ltr" | "rtl" | undefined;');
   });
 
   it("appends | undefined to event handlers with paren-wrapping", () => {
@@ -628,12 +785,8 @@ describe("generateJsxTypes", () => {
     });
 
     expect(template).toContain("innerHTML?: string | undefined;");
-    expect(template).toContain(
-      "textContent?: string | number | undefined;",
-    );
-    expect(template).toContain(
-      `"prop:text"?: Button['text'] | undefined;`,
-    );
+    expect(template).toContain("textContent?: string | number | undefined;");
+    expect(template).toContain(`"prop:text"?: Button['text'] | undefined;`);
     expect(template).toContain(
       `"prop:variant"?: Button['variant'] | undefined;`,
     );
