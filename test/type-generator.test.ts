@@ -345,6 +345,22 @@ describe("generateJsxTypes", () => {
     );
   });
 
+  it("normalizes scoped file paths while preserving bare package specifiers", () => {
+    const manifest = structuredClone(eventDetailManifest);
+    const modulePath = "@scope/components/my-button.ts";
+    manifest.modules[0].path = modulePath;
+    manifest.modules[0].exports?.forEach((exportDeclaration) => {
+      exportDeclaration.declaration.module = modulePath;
+    });
+
+    const template = generateJsxTypes(manifest, {
+      fileName: undefined,
+      outdir: "./types",
+    });
+
+    expect(template).toContain('from "../@scope/components/my-button.ts"');
+  });
+
   it("generates valid types for CSS-only declarations", () => {
     const template = generateJsxTypes(cssOnlyManifest, {
       fileName: undefined,

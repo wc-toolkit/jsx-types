@@ -703,7 +703,12 @@ function getComponentImportPath(
 }
 
 function normalizeImportPath(importPath: string, outdir?: string) {
-  if (importPath.startsWith("@")) return importPath;
+  if (
+    importPath.startsWith("@") &&
+    !FILE_EXTENSIONS.some((extension) => importPath.endsWith(extension))
+  ) {
+    return importPath;
+  }
   const looksLikeFilePath =
     path.isAbsolute(importPath) ||
     importPath.startsWith(".") ||

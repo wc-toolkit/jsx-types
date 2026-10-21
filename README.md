@@ -201,6 +201,12 @@ The `JsxTypesOptions` interface provides several configuration options to custom
 }
 ```
 
+When `componentTypePath` is not provided, file-like component and type-reference paths from the manifest are rewritten relative to `outdir` (for example, `src/button.js` becomes `../src/button.js` when the generated file is in `types/`). Bare package names and scoped package specifiers are kept unchanged. When `componentTypePath` is provided, its return value is used as-is.
+
+### CSS-only custom elements
+
+A declaration is treated as CSS-only when it has no named JavaScript export, has an invalid/equal-to-tag class name, or is marked with `HTMLUnknownElement`. It can still be generated from its CEM attributes: the type name comes from the custom-element tag (for example, `zd-flex` becomes `ZdFlex`), the element type is `HTMLElement`, and attributes use their own manifest types. Bare union values such as `row | column` are emitted as string literals. No class import is generated, and `exclude` applies as usual.
+
 ### Event Configuration
 
 #### `stronglyTypedEvents`
