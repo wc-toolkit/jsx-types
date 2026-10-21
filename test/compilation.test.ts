@@ -49,11 +49,17 @@ const compileManifest: cem.Package = {
               description: "Button variant",
               type: { text: '"primary" | "secondary"' },
             },
+            {
+              kind: "field",
+              name: "mode",
+              description: "Button mode",
+              type: { text: "Mode" },
+            },
           ],
           events: [
             {
               name: "button-click",
-              type: { text: "CustomEvent<string>" },
+              type: { text: "CustomEvent<ButtonDetail>" },
             },
           ],
           cssProperties: [
@@ -73,28 +79,36 @@ const compileManifest: cem.Package = {
             module: "src/button.ts",
           },
         },
+        {
+          kind: "js",
+          name: "ButtonDetail",
+          declaration: { name: "ButtonDetail", module: "src/button.ts" },
+        },
       ],
     },
   ],
 };
 
 const buttonStub = `
-export class Button {
+import type { Mode } from "./types";
+export type ButtonDetail = { message: string };
+export class Button extends HTMLElement {
   text?: string;
   variant?: "primary" | "secondary";
+  mode?: Mode;
 }
 `;
 
 const globalEvents = `  "oncustom"?: (e: CustomEvent<string>) => void;`;
 
 const consumerCode = `
-import type { ButtonProps, CustomElements, CustomElementsSolidJs, CustomCssProperties } from "./generated.d.ts";
+import type { ButtonProps, CustomElements, CustomElementsSolidJs, CustomCssProperties } from "./types/generated.d.ts";
 
 // Component props accept explicit undefined
 const props: ButtonProps = { text: undefined, variant: undefined };
 
 // Event handlers accept explicit undefined
-const eventProps: ButtonProps = { "onbutton-click": undefined };
+const eventProps: ButtonProps = { "onbutton-click": (event) => event.detail.message };
 
 // BaseProps / GLOBAL_PROPS accept explicit undefined
 const baseProps: CustomElements["x-button"] = { class: undefined, id: undefined, role: undefined };
@@ -110,12 +124,61 @@ const cssProps: CustomCssProperties = { "--button-color": undefined };
 
 // SolidJS props accept explicit undefined
 const solidProps: CustomElementsSolidJs["x-button"] = { "prop:text": undefined, innerHTML: undefined, textContent: undefined };
+
+// CSS-only elements use their CEM attribute type without a JavaScript class.
+const layout: CustomElements["zd-flex"] = { direction: "row" };
 `;
 
 describe("tsc compilation under exactOptionalPropertyTypes", () => {
   it("generated output compiles cleanly with exactOptionalPropertyTypes: true", () => {
-    const template = generateJsxTypes(compileManifest, {
+    const manifest = structuredClone(compileManifest);
+    const buttonPath = path.join(tmpDir, "src", "button.ts");
+    const typePath = path.join(tmpDir, "src", "types.ts");
+    manifest.modules[0].path = path.join(tmpDir, "src", "button.ts");
+    manifest.modules[0].exports?.forEach((exportDeclaration) => {
+      exportDeclaration.declaration.module = buttonPath;
+    });
+    const modeMember = manifest.modules[0].declarations?.[0].members?.find(
+      (member) => member.kind === "field" && member.name === "mode",
+    );
+    if (modeMember?.kind === "field") {
+      modeMember.type = {
+        text: "Mode",
+        references: [{ name: "Mode", module: typePath }],
+      };
+    }
+    manifest.modules.push({
+      kind: "javascript-module",
+      path: typePath,
+      declarations: [],
+      exports: [
+        {
+          kind: "js",
+          name: "Mode",
+          declaration: { name: "Mode", module: typePath },
+        },
+      ],
+    });
+    manifest.modules.push({
+      kind: "javascript-module",
+      path: path.join(tmpDir, "src", "zd-flex.css"),
+      declarations: [
+        {
+          kind: "class",
+          name: "zd-flex",
+          tagName: "zd-flex",
+          customElement: true,
+          superclass: { name: "HTMLUnknownElement" },
+          attributes: [{ name: "direction", type: { text: "row | column" } }],
+        },
+      ],
+      exports: [],
+    });
+    const typesDir = path.join(tmpDir, "types");
+    const template = generateJsxTypes(manifest, {
       fileName: undefined,
+      outdir: typesDir,
+      useCemTypes: true,
       includeDefaultDOMEvents: true,
       globalEvents,
     });
@@ -124,7 +187,12 @@ describe("tsc compilation under exactOptionalPropertyTypes", () => {
 
     fs.mkdirSync(path.join(tmpDir, "src"), { recursive: true });
     fs.writeFileSync(path.join(tmpDir, "src", "button.ts"), buttonStub);
-    fs.writeFileSync(path.join(tmpDir, "generated.d.ts"), template!);
+    fs.writeFileSync(
+      path.join(tmpDir, "src", "types.ts"),
+      'export type Mode = "compact" | "wide";\n',
+    );
+    fs.mkdirSync(typesDir, { recursive: true });
+    fs.writeFileSync(path.join(typesDir, "generated.d.ts"), template!);
     fs.writeFileSync(path.join(tmpDir, "consumer.ts"), consumerCode);
 
     const tsconfig = {
@@ -162,7 +230,11 @@ describe("tsc compilation under exactOptionalPropertyTypes", () => {
         },
       ).trim();
     } catch (err) {
-      const output = (err as { stdout?: string; stderr?: string; message: string });
+      const output = err as {
+        stdout?: string;
+        stderr?: string;
+        message: string;
+      };
       throw new Error(
         `tsc compilation failed:\n${output.stdout || ""}\n${output.stderr || ""}`,
       );
