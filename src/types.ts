@@ -31,6 +31,12 @@ export type JsxTypesOptions = {
   typesSrc?: string;
   /** Exclude types for CSS custom properties */
   excludeCssCustomProperties?: boolean;
+  /**
+   * The frameworks whose JSX the types augment, each by a `declare module` of the framework's own
+   * module, which a project without the framework cannot resolve unless it sets `skipLibCheck`.
+   * Defaults to every framework. The global `JSX` namespace is augmented either way.
+   */
+  frameworks?: JsxFramework[];
   /** Optional function to format tag names before processing. */
   tagFormatter?: (tagName: string) => string;
   /** Available options for configuring the way the components description is rendered */
@@ -52,3 +58,13 @@ export type JsxTypesOptions = {
    */
   suffix?: string;
 };
+
+/** A framework whose JSX the types can augment, of {@link JsxTypesOptions.frameworks}. */
+export type JsxFramework =
+  | "react"
+  | "preact"
+  | "qwik"
+  | "stencil"
+  | "hono"
+  | "react-native"
+  | "solid";

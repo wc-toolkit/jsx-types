@@ -244,6 +244,20 @@ A declaration is treated as CSS-only when it has no named JavaScript export, has
 }
 ```
 
+### Framework Configuration
+
+#### `frameworks`
+
+- **Type:** `("react" | "preact" | "qwik" | "stencil" | "hono" | "react-native" | "solid")[]`
+- **Default:** every framework
+- **Description:** The frameworks whose JSX the types augment. Each is augmented by a `declare module` of the framework's own module (`react`, `react/jsx-runtime` and `react/jsx-dev-runtime` for `react`, `solid-js` for `solid` …), which a project without that framework cannot resolve unless it sets `skipLibCheck`. Name the frameworks your consumers use to leave the others out. The global `JSX` namespace is augmented either way.
+
+```ts
+{
+  frameworks: ["react"];
+}
+```
+
 ### Additional Options
 
 #### `allowUnknownProps`

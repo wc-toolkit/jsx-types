@@ -838,4 +838,40 @@ describe("generateJsxTypes", () => {
       '"onbar"?: (\n    string | number\n  ) | undefined;',
     );
   });
+
+  it("augments every framework's JSX by default", () => {
+    const template = generateJsxTypes(jsDocManifest, { fileName: undefined });
+
+    for (const module of [
+      "react",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "preact",
+      "@builder.io/qwik",
+      "@stencil/core",
+      "hono/jsx",
+      "react-native",
+      "solid-js",
+    ]) {
+      expect(template).toMatch(new RegExp(`declare module ['"]${module}['"]`));
+    }
+  });
+
+  it("augments only the JSX of the frameworks given", () => {
+    const template = generateJsxTypes(jsDocManifest, {
+      fileName: undefined,
+      frameworks: ["react", "solid"],
+    });
+    const modules = [
+      ...template.matchAll(/^declare module ['"]([^'"]+)['"]/gm),
+    ].map(([, module]) => module);
+
+    expect(modules).toEqual([
+      "react",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "solid-js",
+    ]);
+    expect(template).toContain("declare global {");
+  });
 });
