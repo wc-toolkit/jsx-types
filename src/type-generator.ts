@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { JsxTypesOptions } from "./types";
+import { JsxFramework, JsxTypesOptions } from "./types";
 import {
   Component,
   getAllComponents,
@@ -583,76 +583,130 @@ ${(() => {
 }
 
 
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module 'react/jsx-runtime' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module 'react/jsx-dev-runtime' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module 'preact' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module '@builder.io/qwik' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module '@stencil/core' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module 'hono/jsx' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module 'react-native' {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElements {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare module "solid-js" {
-  namespace JSX {
-    interface IntrinsicElements extends CustomElementsSolidJs {}
-  }
-  ${cssPropertiesTemplate}
-}
-
-declare global {
+${frameworkAugmentations(options.frameworks, cssPropertiesTemplate)}declare global {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
   ${cssPropertiesTemplate}
 }
 `;
+}
+
+/** The augmentation of each framework's JSX, of {@link JsxTypesOptions.frameworks}: every one by default. */
+const FRAMEWORK_AUGMENTATIONS: [
+  JsxFramework,
+  (cssPropertiesTemplate: string) => string,
+][] = [
+  [
+    "react",
+    (cssPropertiesTemplate) => `declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "react",
+    (cssPropertiesTemplate) => `declare module 'react/jsx-runtime' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "react",
+    (cssPropertiesTemplate) => `declare module 'react/jsx-dev-runtime' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "preact",
+    (cssPropertiesTemplate) => `declare module 'preact' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "qwik",
+    (cssPropertiesTemplate) => `declare module '@builder.io/qwik' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "stencil",
+    (cssPropertiesTemplate) => `declare module '@stencil/core' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "hono",
+    (cssPropertiesTemplate) => `declare module 'hono/jsx' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "react-native",
+    (cssPropertiesTemplate) => `declare module 'react-native' {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElements {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+  [
+    "solid",
+    (cssPropertiesTemplate) => `declare module "solid-js" {
+  namespace JSX {
+    interface IntrinsicElements extends CustomElementsSolidJs {}
+  }
+  ${cssPropertiesTemplate}
+}
+
+`,
+  ],
+];
+
+function frameworkAugmentations(
+  frameworks: JsxFramework[] | undefined,
+  cssPropertiesTemplate: string,
+): string {
+  return FRAMEWORK_AUGMENTATIONS.filter(
+    ([framework]) => !frameworks || frameworks.includes(framework),
+  )
+    .map(([, augmentation]) => augmentation(cssPropertiesTemplate))
+    .join("");
 }
 
 type ComponentProp = {
