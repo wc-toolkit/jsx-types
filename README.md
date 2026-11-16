@@ -350,6 +350,38 @@ A declaration is treated as CSS-only when it has no named JavaScript export, has
 - **Default:** `false`
 - **Description:** This feature never worked as intended and will be removed in the next major version.
 
+## Template Library Types
+
+`generateTemplateTypes` generates `JSX.IntrinsicElements` for template libraries that bind values with `.prop`, `?bool` and `onevent` syntax (for example `html\`<ui-input .value=${text} ?disabled=${off} onvalue-change=${onChange}>\``). Element keys come from each component class, and events come from the manifest.
+
+The declaration augments the `JSX` namespace of the module you name, not the global one. JSX typings for React, Preact and other libraries are not affected.
+
+```ts
+import { generateTemplateTypes } from "@wc-toolkit/jsx-types";
+import manifest from "./custom-elements.json";
+
+generateTemplateTypes(manifest, {
+  moduleName: "my-template-lib",
+  outdir: "./src/generated",
+  fileName: "template-types.ts",
+  componentTypePath: (name, tagName) => `../components/${tagName}/${tagName}.js`,
+});
+```
+
+Include the generated file in your TypeScript program (for example through `tsconfig.json`'s `include`).
+
+#### Options
+
+- `moduleName` _(required)_: module whose `JSX` namespace is augmented, usually your template library's package name.
+- `outdir` and `fileName`: where to write the file. If `fileName` is omitted, only the source string is returned.
+- `exclude`: tag names to skip.
+- `componentTypePath`: returns the import path for each component. Defaults to the module path from the manifest, which is relative to the package root, so pass this option when the generated file lives elsewhere.
+
+#### Limitations
+
+- Event types are copied from the manifest as written. Any type names they use must be importable from the generated file's location.
+- Only properties and events are generated. Attribute names are not included.
+
 ## Framework-Specific Considerations
 
 ### SolidJS
