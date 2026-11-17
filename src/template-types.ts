@@ -4,7 +4,7 @@ import type * as cem from "custom-elements-manifest";
 import prettier from "@prettier/sync";
 
 export type TemplateTypesOptions = {
-  /** Module whose `JSX.IntrinsicElements` is augmented, usually the template library's package name */
+  /** Module whose `JSX` namespace receives `GeneratedIntrinsicElements`, usually the template library's package name */
   moduleName: string;
   /** Path to output directory */
   outdir?: string;
@@ -29,9 +29,10 @@ const HELPER_TYPES = [
 ];
 
 /**
- * Generates `JSX.IntrinsicElements` for a template library that uses `.prop`,
+ * Generates `JSX.GeneratedIntrinsicElements` for a template library that uses `.prop`,
  * `?bool` and `onevent` bindings. Element keys are derived from each component
- * class, and events come from the manifest.
+ * class, and events come from the manifest. Each entry replaces the template library's
+ * own bindings for its tag, so it describes the whole tag.
  *
  * The declaration augments `moduleName`'s `JSX` namespace rather than the global
  * one, so it does not change JSX typings for React, Preact or other libraries.
@@ -92,7 +93,7 @@ export function generateTemplateTypes(
     `declare module ${JSON.stringify(moduleName)} {`,
     "  export namespace JSX {",
     ...HELPER_TYPES.map((line) => `    ${line}`),
-    "    export interface IntrinsicElements {",
+    "    export interface GeneratedIntrinsicElements {",
     ...entries,
     "    }",
     "  }",

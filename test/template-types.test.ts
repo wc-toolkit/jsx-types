@@ -59,7 +59,7 @@ describe("generateTemplateTypes", () => {
 
     expect(text).toContain('declare module "my-lib" {');
     expect(text).toContain("export namespace JSX {");
-    expect(text).toContain("export interface IntrinsicElements {");
+    expect(text).toContain("export interface GeneratedIntrinsicElements {");
   });
 
   it("maps each element to its class and events", () => {
@@ -139,7 +139,7 @@ describe("generated types", () => {
       "src/consumer.ts",
       [
         'import type { JSX } from "my-lib";',
-        'type Entry = JSX.IntrinsicElements["ui-input"];',
+        'type Entry = JSX.GeneratedIntrinsicElements["ui-input"];',
         'export const value: keyof Entry = ".value";',
         "// @ts-expect-error unknown property",
         'export const unknown: keyof Entry = ".nope";',
