@@ -361,7 +361,7 @@ import { generateTemplateTypes } from "@wc-toolkit/jsx-types";
 import manifest from "./custom-elements.json";
 
 generateTemplateTypes(manifest, {
-  moduleName: "my-template-lib",
+  moduleName: "@wc-toolkit/tagit",
   outdir: "./src/generated",
   fileName: "template-types.ts",
   componentTypePath: (name, tagName) => `../components/${tagName}/${tagName}.js`,
